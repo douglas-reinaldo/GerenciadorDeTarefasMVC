@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using GerenciadorDeTarefas.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace GerenciadorDeTarefas.Data
 {
@@ -8,5 +9,7 @@ namespace GerenciadorDeTarefas.Data
         {
 
         }
+        public DbSet<Usuario> Usuario { get; set; }
+        public DbSet<Tarefa> Tarefa { get; set; }
     }
 }

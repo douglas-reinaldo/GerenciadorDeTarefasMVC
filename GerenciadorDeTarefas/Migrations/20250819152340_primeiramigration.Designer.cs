@@ -4,6 +4,7 @@ using GerenciadorDeTarefas.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GerenciadorDeTarefas.Migrations
 {
     [DbContext(typeof(GerenciadorTarefasDbContext))]
-    partial class GerenciadorTarefasDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250819152340_primeiramigration")]
+    partial class primeiramigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
