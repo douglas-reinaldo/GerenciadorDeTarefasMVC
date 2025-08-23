@@ -15,6 +15,11 @@ namespace GerenciadorDeTarefas.Controllers
 
         public IActionResult Index()
         {
+            var id = HttpContext.Session.GetInt32("UserId");
+            var name = HttpContext.Session.GetString("UserName");
+
+            ViewData["UserId"] = id;
+            ViewData["UserName"] = name;
             return View();
         }
 

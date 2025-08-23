@@ -18,6 +18,7 @@ namespace GerenciadorDeTarefas
             ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("GerenciadorDeTarefas"))));
 
             builder.Services.AddScoped<UsuarioService>();
+            builder.Services.AddSession();
 
             var app = builder.Build();
 
@@ -33,7 +34,7 @@ namespace GerenciadorDeTarefas
             app.UseStaticFiles();
 
             app.UseRouting();
-
+            app.UseSession();
             app.UseAuthorization();
 
             app.MapControllerRoute(

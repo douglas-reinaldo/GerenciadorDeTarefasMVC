@@ -1,18 +1,42 @@
 ﻿using GerenciadorDeTarefas.Data;
 using GerenciadorDeTarefas.Models;
+using Microsoft.AspNetCore.Identity;
+using System.Reflection.Metadata.Ecma335;
 
 namespace GerenciadorDeTarefas.Services
 {
     public class UsuarioService
     {
         private readonly GerenciadorTarefasDbContext _context;
+        private readonly PasswordHasher<Usuario> _passwordHasher;
 
-        public UsuarioService(GerenciadorTarefasDbContext context) { _context = context; }
+        public UsuarioService(GerenciadorTarefasDbContext context) 
+        {
+            _context = context;
+            _passwordHasher = new PasswordHasher<Usuario>();
+        }
 
         public void AdicionarUsuario(Usuario usuario) 
         {
+            usuario.SenhaHash = _passwordHasher.HashPassword(usuario, usuario.Senha);
+
             _context.Add(usuario);
             _context.SaveChanges();
         }
+
+        public Usuario Autenticar(string email, string senha) 
+        {
+            var usuario = _context.Usuario.FirstOrDefault(n => n.Email == email);
+            if (usuario == null) return null;
+
+            var resultado = _passwordHasher.VerifyHashedPassword(usuario, usuario.SenhaHash, senha);
+            if (resultado == PasswordVerificationResult.Success) 
+            {
+                return usuario;
+            }
+            return null;
+        }
+
+
     }
 }
