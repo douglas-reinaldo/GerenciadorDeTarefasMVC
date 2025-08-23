@@ -1,4 +1,6 @@
 using GerenciadorDeTarefas.Data;
+using GerenciadorDeTarefas.Models;
+using GerenciadorDeTarefas.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace GerenciadorDeTarefas
@@ -14,6 +16,8 @@ namespace GerenciadorDeTarefas
             builder.Services.AddDbContext<GerenciadorTarefasDbContext>(options =>
             options.UseMySql(builder.Configuration.GetConnectionString("GerenciadorDeTarefas"),
             ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("GerenciadorDeTarefas"))));
+
+            builder.Services.AddScoped<UsuarioService>();
 
             var app = builder.Build();
 

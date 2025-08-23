@@ -135,4 +135,3 @@ C:\Users\dougl\Downloads\Nova pasta\GerenciadorDeTarefas\GerenciadorDeTarefas\ob
 C:\Users\dougl\Downloads\Nova pasta\GerenciadorDeTarefas\GerenciadorDeTarefas\obj\Debug\net8.0\GerenciadorDeTarefas.genruntimeconfig.cache
 C:\Users\dougl\Downloads\Nova pasta\GerenciadorDeTarefas\GerenciadorDeTarefas\obj\Debug\net8.0\ref\GerenciadorDeTarefas.dll
 C:\Users\dougl\Downloads\Nova pasta\GerenciadorDeTarefas\GerenciadorDeTarefas\obj\Debug\net8.0\GerenciadorDeTarefas.sourcelink.json
-C:\Users\dougl\Downloads\Nova pasta\GerenciadorDeTarefas\GerenciadorDeTarefas\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
