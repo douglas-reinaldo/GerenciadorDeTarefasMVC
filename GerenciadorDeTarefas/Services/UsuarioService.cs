@@ -38,5 +38,10 @@ namespace GerenciadorDeTarefas.Services
         }
 
 
+        public Usuario obterPorId(int Id) 
+        {
+            return _context.Usuario.FirstOrDefault(n => n.Id == Id);
+        }
+
     }
 }

@@ -37,7 +37,7 @@ namespace GerenciadorDeTarefas.Controllers
             return View(new LoginRequestDTO());
         }
 
-        [HttpPost("Login")]
+        [HttpPost]
         public IActionResult Login(LoginRequestDTO request) 
         {
             var usuario = _usuarioService.Autenticar(request.Email, request.Senha);
@@ -50,6 +50,29 @@ namespace GerenciadorDeTarefas.Controllers
             HttpContext.Session.SetString("UserName", usuario.Nome);
 
             return Ok();
+        }
+
+
+        [HttpGet]
+        public IActionResult Logout() 
+        {
+            var usuarioId = HttpContext.Session.GetInt32("UserId");
+            if (usuarioId != null) 
+            {
+                
+                var usuario = _usuarioService.obterPorId(usuarioId.Value);
+                return View(usuario);
+            }
+            return RedirectToAction(nameof(Login));
+            
+        }
+
+
+        [HttpPost]
+        public IActionResult LogoutConfirmado() 
+        {
+            HttpContext.Session.Clear();
+            return RedirectToAction("Login");
         }
         
     }
