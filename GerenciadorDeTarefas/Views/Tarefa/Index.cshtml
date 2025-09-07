@@ -1,0 +1,50 @@
+﻿@model IEnumerable<Tarefa>
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "Tarefas";
+}
+
+<h1>@ViewData["title"]</h1>
+
+
+<table class="table table-striped table-hover">
+    <thead>
+        <tr class="table-success">
+            <th>
+                @Html.DisplayNameFor(n => n.Titulo)
+            </th>
+            <th>
+                @Html.DisplayNameFor(n => n.Descricao)
+            </th>
+            <th>
+                @Html.DisplayNameFor(n => n.DataCriacao)
+            </th>
+            <th>
+                @Html.DisplayNameFor(n => n.Status)
+            </th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (Tarefa tarefa in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(t => tarefa.Titulo)
+                </td>
+                <td>
+                    @Html.DisplayFor(t => tarefa.Descricao)
+                </td>
+                <td>
+                    @Html.DisplayFor(t => tarefa.DataCriacao)
+                </td>
+                <td>
+                    @Html.DisplayFor(t => tarefa.Status)
+                </td>
+                
+            </tr>
+        }
+    </tbody>
+</table>

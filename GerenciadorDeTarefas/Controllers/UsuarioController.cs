@@ -49,7 +49,7 @@ namespace GerenciadorDeTarefas.Controllers
             HttpContext.Session.SetInt32("UserId", usuario.Id);
             HttpContext.Session.SetString("UserName", usuario.Nome);
 
-            return Ok();
+            return RedirectToAction("Index", "Tarefa");
         }
 
 
