@@ -1,6 +1,7 @@
 ﻿using GerenciadorDeTarefas.Data;
 using GerenciadorDeTarefas.Models;
 using GerenciadorDeTarefas.Models.Enums;
+using System.Runtime.InteropServices.Marshalling;
 
 namespace GerenciadorDeTarefas.Services
 {
@@ -28,6 +29,32 @@ namespace GerenciadorDeTarefas.Services
             _context.SaveChanges();
         }
 
+        public Tarefa ObterTarefaPorId(int Id) 
+        {
+            return _context.Tarefa.FirstOrDefault(n => n.Id == Id);
+        }
+
+
+        public void AtualizarTarefa(Tarefa tarefa) 
+        {
+
+            if (tarefa == null) 
+            {
+                throw new Exception("Tarefa não encontrada!");
+            }
+
+            try
+            {
+                _context.Tarefa.Update(tarefa);
+                _context.SaveChanges();
+            }
+            catch (Exception e) 
+            {
+                throw new Exception(e.Message);
+            }
+
+            
+        }
         
     }
 }

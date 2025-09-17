@@ -2,6 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 using GerenciadorDeTarefas.Services;
 using GerenciadorDeTarefas.Models;
+using GerenciadorDeTarefas.Models.ViewModels;
+using GerenciadorDeTarefas.Models.Enums;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace GerenciadorDeTarefas.Controllers
 {
@@ -29,7 +32,10 @@ namespace GerenciadorDeTarefas.Controllers
         [HttpGet]
         public IActionResult Create() 
         {
-            return View(new Tarefa());
+            TarefaFormViewModel viewModel = new TarefaFormViewModel();
+            viewModel.statusLista = new SelectList(Enum.GetValues<Status>());
+
+            return View(viewModel);
         }
 
         [HttpPost]
@@ -40,5 +46,51 @@ namespace GerenciadorDeTarefas.Controllers
             _tarefaService.AddTarefa(tarefa, userId);
             return RedirectToAction(nameof(Index));
         }
+
+
+        [HttpGet]
+        public IActionResult Edit(int? Id) 
+        {
+
+            if (Id == null) 
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            Tarefa tarefa = _tarefaService.ObterTarefaPorId(Id.Value);
+            var viewModel = new TarefaFormViewModel();
+
+            viewModel.tarefa = tarefa;
+            viewModel.statusLista = new SelectList(Enum.GetValues<Status>());
+
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        public IActionResult Edit(Tarefa tarefa) 
+        {
+            if (!ModelState.IsValid)
+            {
+                Console.WriteLine($"{tarefa.Id}, {tarefa.Titulo}, {tarefa.Descricao}, {tarefa.DataCriacao}, {tarefa.UsuarioId}, {tarefa.Status}");
+                var viewModel = new TarefaFormViewModel();
+                viewModel.statusLista = new SelectList(Enum.GetValues<Status>());
+                return View(viewModel);
+            }
+
+            var tarefaExistente = _tarefaService.ObterTarefaPorId(tarefa.Id);
+            if (tarefaExistente == null) 
+            {
+                return NotFound("Tarefa não encontrada");
+            }
+
+            tarefaExistente.Titulo = tarefa.Titulo;
+            tarefaExistente.Descricao = tarefa.Descricao;
+            tarefaExistente.Status = tarefa.Status;
+
+
+            _tarefaService.AtualizarTarefa(tarefaExistente);
+            return RedirectToAction(nameof(Index));
+        }
+
     }
 }

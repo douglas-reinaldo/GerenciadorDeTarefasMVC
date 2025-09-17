@@ -24,6 +24,7 @@
             <th>
                 @Html.DisplayNameFor(n => n.Status)
             </th>
+            <th></th>
         </tr>
     </thead>
 
@@ -42,6 +43,11 @@
                 </td>
                 <td>
                     @Html.DisplayFor(t => tarefa.Status)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@tarefa.Id">Editar</a>
+                    <a asp-action="Details" asp-route-id="@tarefa.Id">Detalhes</a>
+                    <a asp-action="Delete" asp-route-id="@tarefa.Id">Deletar</a>
                 </td>
                 
             </tr>

@@ -3,7 +3,7 @@
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
 @{
-    ViewData["Title"] = "Criar tarefa";
+    ViewData["Title"] = "Atualizar tarefa";
 
 }
 
@@ -11,8 +11,9 @@
 
 <div class="row">
     <div class="col-md-4">
-
-        <form asp-action="Create" method="post" class="mt-2">
+        
+        <form asp-action="Edit" method="post" class="mt-2">
+            <input type="hidden" asp-for="tarefa.Id" />
             <div class="form-group">
                 <label asp-for="tarefa.Titulo" class="form-label"></label>
                 <input asp-for="tarefa.Titulo" class="form-control" />
@@ -26,7 +27,7 @@
                 <select asp-for="tarefa.Status" asp-items="@Model.statusLista" class="form-control"></select>
             </div>
             <div class="form-group mt-2">
-                <input type="submit" value="Criar" class="btn btn-secondary" />
+                <input type="submit" value="Atualizar" class="btn btn-secondary" />
             </div>
         </form>
     </div>
