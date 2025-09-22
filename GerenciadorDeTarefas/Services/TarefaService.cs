@@ -55,6 +55,12 @@ namespace GerenciadorDeTarefas.Services
 
             
         }
+
+        public void DeletarTarefa(Tarefa tarefa) 
+        {
+            _context.Tarefa.Remove(tarefa);
+            _context.SaveChanges();
+        }
         
     }
 }

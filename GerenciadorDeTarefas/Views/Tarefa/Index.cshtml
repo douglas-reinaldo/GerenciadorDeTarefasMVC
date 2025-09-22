@@ -47,7 +47,12 @@
                 <td>
                     <a asp-action="Edit" asp-route-id="@tarefa.Id">Editar</a>
                     <a asp-action="Details" asp-route-id="@tarefa.Id">Detalhes</a>
-                    <a asp-action="Delete" asp-route-id="@tarefa.Id">Deletar</a>
+
+
+                    <form asp-action="Delete" asp-route-id="@tarefa.Id" method="post" style="display:inline;">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-link text-danger" onclick="return confirm('Tem certeza que deseja deletar esta tarefa?');">Deletar</button>
+                    </form>
                 </td>
                 
             </tr>

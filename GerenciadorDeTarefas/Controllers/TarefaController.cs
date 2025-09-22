@@ -38,6 +38,7 @@ namespace GerenciadorDeTarefas.Controllers
             return View(viewModel);
         }
 
+        [ValidateAntiForgeryToken]
         [HttpPost]
         public IActionResult Create(Tarefa tarefa) 
         {
@@ -66,6 +67,7 @@ namespace GerenciadorDeTarefas.Controllers
             return View(viewModel);
         }
 
+        [ValidateAntiForgeryToken]
         [HttpPost]
         public IActionResult Edit(Tarefa tarefa) 
         {
@@ -91,6 +93,54 @@ namespace GerenciadorDeTarefas.Controllers
             _tarefaService.AtualizarTarefa(tarefaExistente);
             return RedirectToAction(nameof(Index));
         }
+
+        [HttpGet]
+        public IActionResult Details(int? Id) 
+        {
+            if (Id == null)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            Tarefa tarefa = _tarefaService.ObterTarefaPorId(Id.Value);
+
+            if (tarefa == null) 
+            {
+                return NotFound("Tarefa não encontrada");
+            }
+            if (tarefa.UsuarioId != HttpContext.Session.GetInt32("UserId").Value) 
+            {
+                
+                return Unauthorized("Você não tem permissão para acessar essa tarefa.");
+            }
+            
+            return View(tarefa);
+        }
+
+
+        [ValidateAntiForgeryToken]
+        [HttpPost]
+        public IActionResult Delete(int? Id) 
+        {
+            if (Id == null) 
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            Tarefa tarefa = _tarefaService.ObterTarefaPorId(Id.Value);
+            if (tarefa == null)
+            {
+                return NotFound("Tarefa não encontrada");
+            }
+            if (tarefa.UsuarioId != HttpContext.Session.GetInt32("UserId").Value)
+            {
+                return Unauthorized("Você não tem permissão para acessar essa tarefa.");
+            }
+
+            _tarefaService.DeletarTarefa(tarefa);
+            return RedirectToAction(nameof(Index));
+        }
+
 
     }
 }
