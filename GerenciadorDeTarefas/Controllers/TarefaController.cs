@@ -42,6 +42,12 @@ namespace GerenciadorDeTarefas.Controllers
         [HttpPost]
         public IActionResult Create(Tarefa tarefa) 
         {
+            if (!ModelState.IsValid) 
+            {
+                var viewModel = new TarefaFormViewModel();
+                viewModel.statusLista = new SelectList(Enum.GetValues<Status>());
+                return View(viewModel);
+            }
             int userId = HttpContext.Session.GetInt32("UserId").Value;
 
             _tarefaService.AddTarefa(tarefa, userId);
@@ -73,7 +79,7 @@ namespace GerenciadorDeTarefas.Controllers
         {
             if (!ModelState.IsValid)
             {
-                Console.WriteLine($"{tarefa.Id}, {tarefa.Titulo}, {tarefa.Descricao}, {tarefa.DataCriacao}, {tarefa.UsuarioId}, {tarefa.Status}");
+                
                 var viewModel = new TarefaFormViewModel();
                 viewModel.statusLista = new SelectList(Enum.GetValues<Status>());
                 return View(viewModel);

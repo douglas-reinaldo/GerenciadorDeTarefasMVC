@@ -23,12 +23,16 @@ namespace GerenciadorDeTarefas.Controllers
             return View(new Usuario());
         }
 
+        [ValidateAntiForgeryToken]
         [HttpPost]
         public IActionResult Cadastro(Usuario usuario) 
         {
-            
+            if (!ModelState.IsValid) 
+            {
+                return View(usuario);
+            }
             _usuarioService.AdicionarUsuario(usuario);
-            return RedirectToAction(nameof(Cadastro));
+            return RedirectToAction(nameof(Login));
         }
 
         [HttpGet]
@@ -37,9 +41,15 @@ namespace GerenciadorDeTarefas.Controllers
             return View(new LoginRequestDTO());
         }
 
+
+        [ValidateAntiForgeryToken]
         [HttpPost]
         public IActionResult Login(LoginRequestDTO request) 
         {
+            if (!ModelState.IsValid) 
+            {
+                return View(request);
+            }
             var usuario = _usuarioService.Autenticar(request.Email, request.Senha);
             if (usuario == null) 
             {
@@ -68,12 +78,28 @@ namespace GerenciadorDeTarefas.Controllers
         }
 
 
+        [ValidateAntiForgeryToken]
         [HttpPost]
         public IActionResult LogoutConfirmado() 
         {
             HttpContext.Session.Clear();
-            return RedirectToAction("Login");
+            return RedirectToAction(nameof(Login));
         }
-        
+
+        [HttpGet]
+        public IActionResult Detalhes() 
+        {
+            var usuarioId = HttpContext.Session.GetInt32("UserId");
+            if (usuarioId != null)
+            {
+                var usuario = _usuarioService.obterPorId(usuarioId.Value);
+                return View(usuario);
+            }
+            return RedirectToAction(nameof(Login));
+        }
+
+
+      
+
     }
 }

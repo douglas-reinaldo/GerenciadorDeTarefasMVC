@@ -6,7 +6,7 @@ namespace GerenciadorDeTarefas.Models.ViewModels
 {
     public class TarefaFormViewModel
     {
-        public Tarefa tarefa { get; set; }
+        public Tarefa tarefa { get; set; } = new Tarefa();
         public SelectList statusLista { get; set; }
     }
 }

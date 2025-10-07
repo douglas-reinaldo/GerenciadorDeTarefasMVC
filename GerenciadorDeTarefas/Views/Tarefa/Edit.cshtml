@@ -17,15 +17,19 @@
             <div class="form-group">
                 <label asp-for="tarefa.Titulo" class="form-label"></label>
                 <input asp-for="tarefa.Titulo" class="form-control" />
+                <span asp-validation-for="tarefa.Titulo" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="tarefa.Descricao" class="form-label"></label>
                 <textarea asp-for="tarefa.Descricao" class="form-control"></textarea>
+                <span asp-validation-for="tarefa.Descricao" class="text-danger"></span>
             </div>
             <div class="form-group mt-2">
                 <label asp-for="tarefa.Status" class="form-label"></label>
                 <select asp-for="tarefa.Status" asp-items="@Model.statusLista" class="form-control"></select>
+                <span asp-validation-for="tarefa.Status" class="text-danger"></span>
             </div>
+            @Html.AntiForgeryToken()
             <div class="form-group mt-2">
                 <input type="submit" value="Atualizar" class="btn btn-secondary" />
             </div>
