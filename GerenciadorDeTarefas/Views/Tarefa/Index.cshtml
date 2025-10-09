@@ -9,53 +9,27 @@
 <h1>@ViewData["title"]</h1>
 
 
-<table class="table table-striped table-hover">
-    <thead>
-        <tr class="table-success">
-            <th>
-                @Html.DisplayNameFor(n => n.Titulo)
-            </th>
-            <th>
-                @Html.DisplayNameFor(n => n.Descricao)
-            </th>
-            <th>
-                @Html.DisplayNameFor(n => n.DataCriacao)
-            </th>
-            <th>
-                @Html.DisplayNameFor(n => n.Status)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-
-    <tbody>
-        @foreach (Tarefa tarefa in Model)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(t => tarefa.Titulo)
-                </td>
-                <td>
-                    @Html.DisplayFor(t => tarefa.Descricao)
-                </td>
-                <td>
-                    @Html.DisplayFor(t => tarefa.DataCriacao)
-                </td>
-                <td>
-                    @Html.DisplayFor(t => tarefa.Status)
-                </td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@tarefa.Id">Editar</a>
-                    <a asp-action="Details" asp-route-id="@tarefa.Id">Detalhes</a>
-
-
-                    <form asp-action="Delete" asp-route-id="@tarefa.Id" method="post" style="display:inline;">
-                    @Html.AntiForgeryToken()
-                    <button type="submit" class="btn btn-link text-danger" onclick="return confirm('Tem certeza que deseja deletar esta tarefa?');">Deletar</button>
-                    </form>
-                </td>
-                
-            </tr>
+<div class="container mt-5">
+    <div class="row g-4">
+        @{
+            foreach (var tarefa in Model)
+            {
+                <div class="col-md-4 col-sm-6 col-12">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h3 class="card-title ">@tarefa.Titulo</h3>
+                            <p class="card-text">@tarefa.Descricao</p>
+                            <span class="badge bg-success">@tarefa.Status</span>
+                            <a href="#" class="btn btn-primary">Link do card</a>
+                        </div>
+                        <div class="card-footer text-muted">
+                            Criado em: @tarefa.DataCriacao.ToString("dd/MM/yyyy")
+                        </div>
+                    </div>
+                </div>
+            }
         }
-    </tbody>
-</table>
+        
+    </div>
+    
+</div>
