@@ -47,7 +47,11 @@ namespace GerenciadorDeTarefas.Controllers
             }
 
             _usuarioService.AdicionarUsuario(usuario);
-            return RedirectToAction(nameof(Login));
+            HttpContext.Session.SetInt32("UserId", usuario.Id);
+            HttpContext.Session.SetString("UserName", usuario.Nome);
+
+
+            return RedirectToAction("Index", "Tarefa");
         }
 
         [HttpGet]
@@ -59,16 +63,17 @@ namespace GerenciadorDeTarefas.Controllers
 
         [ValidateAntiForgeryToken]
         [HttpPost]
-        public IActionResult Login(LoginRequestDTO request) 
+        public IActionResult Login(LoginRequestDTO request)
         {
-            if (!ModelState.IsValid) 
-            {
+            if (!ModelState.IsValid)
                 return View(request);
-            }
+
             var usuario = _usuarioService.Autenticar(request.Email, request.Senha);
-            if (usuario == null) 
+            if (usuario == null)
             {
-                return Unauthorized("Email ou senha incorretos");
+
+                ModelState.AddModelError(string.Empty, "Email ou senha incorretos");
+                return View(request);
             }
 
             HttpContext.Session.SetInt32("UserId", usuario.Id);
@@ -76,6 +81,7 @@ namespace GerenciadorDeTarefas.Controllers
 
             return RedirectToAction("Index", "Tarefa");
         }
+
 
 
         [HttpGet]

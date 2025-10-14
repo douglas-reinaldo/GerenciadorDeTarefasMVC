@@ -22,11 +22,12 @@ namespace GerenciadorDeTarefas.Services
 
             _context.Add(usuario);
             _context.SaveChanges();
+            
         }
 
         public Usuario Autenticar(string email, string senha) 
         {
-            var usuario = _context.Usuario.FirstOrDefault(n => n.Email == email);
+            var usuario = obterPorEmail(email);
             if (usuario == null) return null;
 
             var resultado = _passwordHasher.VerifyHashedPassword(usuario, usuario.SenhaHash, senha);
