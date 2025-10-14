@@ -8,5 +8,6 @@ namespace GerenciadorDeTarefas.Models.ViewModels
     {
         public Tarefa tarefa { get; set; } = new Tarefa();
         public SelectList statusLista { get; set; }
+        public SelectList prioridadeLista { get; set; }
     }
 }

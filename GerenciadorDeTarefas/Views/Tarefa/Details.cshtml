@@ -1,31 +1,85 @@
 ﻿@model Tarefa
+@using GerenciadorDeTarefas.Models.Enums
 
 @{
     ViewData["Title"] = "Detalhes da Tarefa";
+
+    string BadgeStatusClass(Status status) => status switch
+    {
+        Status.CONCLUIDA => "bg-concluido text-dark",
+        Status.ANDAMENTO => "bg-andamento text-dark",
+        Status.PENDENTE => "bg-pendente text-dark",
+        _ => "bg-light text-dark"
+    };
+
+    string BadgePrioridadeClass(Prioridade prioridade) => prioridade switch
+    {
+        Prioridade.Baixa => "bg-primary text-white",
+        Prioridade.Media => "bg-warning text-dark",
+        Prioridade.Alta => "bg-danger text-white",
+        _ => "bg-light text-dark"
+    };
 }
+
+<style>
+    .card-details {
+        border-radius: 1rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+        padding: 1rem;
+    }
+
+    .badge-status, .badge-prioridade {
+        font-size: 1rem;
+        font-weight: 600;
+        padding: 0.5em 0.8em;
+        border-radius: 0.8rem;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .bg-concluido {
+        background-color: #A8E6A3 !important;
+    }
+
+    .bg-andamento {
+        background-color: #FFF9A3 !important;
+    }
+
+    .bg-pendente {
+        background-color: #FFD2A3 !important;
+    }
+</style>
 
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-md-8 col-lg-6">
 
-            <div class="card shadow-sm border-0">
-                <div class="card-body p-4">
+            <div class="card card-details shadow-sm border-0">
+                <div class="card-body">
 
                     <h2 class="text-center mb-4">@ViewData["Title"]</h2>
 
                     <dl class="row mb-4">
                         <dt class="col-sm-4 fw-bold">Título:</dt>
-                        <dd class="col-sm-8">@Html.DisplayFor(model => model.Titulo)</dd>
+                        <dd class="col-sm-8">@Html.DisplayFor(m => m.Titulo)</dd>
 
                         <dt class="col-sm-4 fw-bold">Descrição:</dt>
-                        <dd class="col-sm-8">@Html.DisplayFor(model => model.Descricao)</dd>
+                        <dd class="col-sm-8">@Html.DisplayFor(m => m.Descricao)</dd>
 
                         <dt class="col-sm-4 fw-bold">Data de Criação:</dt>
-                        <dd class="col-sm-8">@Html.DisplayFor(model => model.DataCriacao)</dd>
+                        <dd class="col-sm-8">@Html.DisplayFor(m => m.DataCriacao)</dd>
 
                         <dt class="col-sm-4 fw-bold">Status:</dt>
                         <dd class="col-sm-8">
-                            <span class="badge bg-success">@Html.DisplayFor(model => model.Status)</span>
+                            <span class="badge badge-status @BadgeStatusClass(Model.Status)">
+                                @Model.Status
+                            </span>
+                        </dd>
+
+                        <dt class="col-sm-4 fw-bold">Prioridade:</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge badge-prioridade @BadgePrioridadeClass(Model.Prioridade)">
+                                @Model.Prioridade
+                            </span>
                         </dd>
                     </dl>
 

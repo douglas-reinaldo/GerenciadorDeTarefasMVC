@@ -42,5 +42,10 @@ namespace GerenciadorDeTarefas.Models
         public Usuario Usuario { get; set; }
 
 
+        [Display(Name = "Prioridadde da Tarefa")]
+        [Required(ErrorMessage = "É necessario definir uma prioridade")]
+        public Prioridade Prioridade { get; set; }
+
+
     }
 }

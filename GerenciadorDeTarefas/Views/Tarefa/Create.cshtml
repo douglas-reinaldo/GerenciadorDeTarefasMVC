@@ -31,6 +31,13 @@
                             <span asp-validation-for="tarefa.Status" class="text-danger small"></span>
                         </div>
 
+                        <div class="mb-3">
+                            <label asp-for="tarefa.Prioridade" class="form-label"></label>
+                            <select asp-for="tarefa.Prioridade" asp-items="@Model.prioridadeLista" class="form-control"></select>
+                            <span asp-validation-for="tarefa.Prioridade" class="text-danger small"></span>
+                        </div>
+
+
                         @Html.AntiForgeryToken()
 
                         <div class="d-grid">

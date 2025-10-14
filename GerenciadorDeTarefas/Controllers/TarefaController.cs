@@ -34,6 +34,7 @@ namespace GerenciadorDeTarefas.Controllers
         {
             TarefaFormViewModel viewModel = new TarefaFormViewModel();
             viewModel.statusLista = new SelectList(Enum.GetValues<Status>());
+            viewModel.prioridadeLista = new SelectList(Enum.GetValues<Prioridade>());
 
             return View(viewModel);
         }
@@ -42,10 +43,14 @@ namespace GerenciadorDeTarefas.Controllers
         [HttpPost]
         public IActionResult Create(Tarefa tarefa) 
         {
-            if (!ModelState.IsValid) 
+            if (!ModelState.IsValid)
             {
-                var viewModel = new TarefaFormViewModel();
-                viewModel.statusLista = new SelectList(Enum.GetValues<Status>());
+                var viewModel = new TarefaFormViewModel
+                {
+                    tarefa = tarefa,
+                    statusLista = new SelectList(Enum.GetValues<Status>()),
+                    prioridadeLista = new SelectList(Enum.GetValues<Prioridade>())
+                };
                 return View(viewModel);
             }
             int userId = HttpContext.Session.GetInt32("UserId").Value;
@@ -69,6 +74,7 @@ namespace GerenciadorDeTarefas.Controllers
 
             viewModel.tarefa = tarefa;
             viewModel.statusLista = new SelectList(Enum.GetValues<Status>());
+            viewModel.prioridadeLista = new SelectList(Enum.GetValues<Prioridade>());
 
             return View(viewModel);
         }
@@ -82,6 +88,7 @@ namespace GerenciadorDeTarefas.Controllers
                 
                 var viewModel = new TarefaFormViewModel();
                 viewModel.statusLista = new SelectList(Enum.GetValues<Status>());
+                viewModel.prioridadeLista = new SelectList(Enum.GetValues<Prioridade>());
                 return View(viewModel);
             }
 
@@ -94,7 +101,7 @@ namespace GerenciadorDeTarefas.Controllers
             tarefaExistente.Titulo = tarefa.Titulo;
             tarefaExistente.Descricao = tarefa.Descricao;
             tarefaExistente.Status = tarefa.Status;
-
+            tarefaExistente.Prioridade = tarefa.Prioridade;
 
             _tarefaService.AtualizarTarefa(tarefaExistente);
             return RedirectToAction(nameof(Index));
@@ -147,6 +154,6 @@ namespace GerenciadorDeTarefas.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-
+        
     }
 }

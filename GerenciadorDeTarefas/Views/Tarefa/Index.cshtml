@@ -1,7 +1,35 @@
 ﻿@model IEnumerable<Tarefa>
+@using GerenciadorDeTarefas.Models.Enums
 
 @{
     ViewData["Title"] = "Tarefas";
+
+    // Classe do card de acordo com o status
+    string CardClass(Status status) => status switch
+    {
+        Status.CONCLUIDA => "border-success bg-concluido",
+        Status.ANDAMENTO => "border-warning bg-andamento",
+        Status.PENDENTE => "border-secondary bg-pendente",
+        _ => "border-light bg-light"
+    };
+
+    // Classe do badge de status
+    string BadgeStatusClass(Status status) => status switch
+    {
+        Status.CONCLUIDA => "bg-concluido text-dark",
+        Status.ANDAMENTO => "bg-andamento text-dark",
+        Status.PENDENTE => "bg-pendente text-dark",
+        _ => "bg-light text-dark"
+    };
+
+    // Classe do badge de prioridade
+    string BadgePrioridadeClass(Prioridade prioridade) => prioridade switch
+    {
+        Prioridade.Baixa => "bg-primary text-white",
+        Prioridade.Media => "bg-warning text-dark",
+        Prioridade.Alta => "bg-danger text-white",
+        _ => "bg-light text-dark"
+    };
 }
 
 <div class="container py-4">
@@ -16,41 +44,33 @@
         @foreach (var tarefa in Model)
         {
             <div class="col-lg-4 col-md-6 col-12">
-                <div class="card shadow-sm border-0 h-100">
-
-                    <a asp-action="Details"
-                       asp-route-id="@tarefa.Id"
-                       class="text-decoration-none text-dark">
+                <div class="card shadow-sm h-100 card-hover @CardClass(tarefa.Status)">
+                    <a asp-action="Details" asp-route-id="@tarefa.Id" class="text-decoration-none text-dark">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-start mb-2">
-                                <h5 class="card-title text-truncate mb-0">
-                                    @tarefa.Titulo
-                                </h5>
-                                <span class="badge bg-success">
+                                <h5 class="card-title text-truncate mb-0">@tarefa.Titulo</h5>
+                                <span class="badge badge-status @BadgeStatusClass(tarefa.Status)">
                                     @tarefa.Status
                                 </span>
                             </div>
-                            <p class="card-text text-muted text-truncate">
-                                @tarefa.Descricao
-                            </p>
+
+                            <p class="card-text text-muted text-truncate">@tarefa.Descricao</p>
+
+                            <span class="badge badge-prioridade @BadgePrioridadeClass(tarefa.Prioridade)">
+                                @tarefa.Prioridade
+                            </span>
                         </div>
                     </a>
 
                     <div class="card-footer bg-white border-0">
                         <div class="d-flex justify-content-start mb-2">
-                            <a asp-action="Edit"
-                               asp-route-id="@tarefa.Id"
-                               class="btn btn-outline-primary btn-sm me-2">
+                            <a asp-action="Edit" asp-route-id="@tarefa.Id" class="btn btn-outline-primary btn-sm me-2">
                                 Editar
                             </a>
 
-                            <form asp-action="Delete"
-                                  asp-route-id="@tarefa.Id"
-                                  method="post"
-                                  class="d-inline"
+                            <form asp-action="Delete" asp-route-id="@tarefa.Id" method="post" class="d-inline"
                                   onsubmit="return confirm('Tem certeza que deseja excluir esta tarefa?');">
-                                <button type="submit"
-                                        class="btn btn-outline-danger btn-sm">
+                                <button type="submit" class="btn btn-outline-danger btn-sm">
                                     Excluir
                                 </button>
                             </form>

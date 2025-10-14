@@ -1,22 +1,157 @@
+/* ======================================
+   BASE E RESPONSIVIDADE
+   ====================================== */
 html {
-  font-size: 14px;
+    font-size: 14px;
+    position: relative;
+    min-height: 100%;
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
+    html {
+        font-size: 16px;
+    }
 }
 
 body {
-  margin-bottom: 60px;
+    margin-bottom: 60px;
+    font-family: 'Lato', sans-serif;
 }
+
+/* ======================================
+   FOCO DE INPUTS E BOTOES
+   ====================================== */
+.btn:focus,
+.btn:active:focus,
+.btn-link.nav-link:focus,
+.form-control:focus,
+.form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+/* ======================================
+   FONTS PERSONALIZADAS
+   ====================================== */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Roboto:wght@400;500&family=Lato:wght@400;600&family=Montserrat:wght@400;700&display=swap');
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+}
+
+label, .form-label, .badge, .card-title {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 500;
+}
+
+.card-body, .form-control, .text-muted {
+    font-family: 'Lato', sans-serif;
+    font-weight: 400;
+}
+
+/* ======================================
+   CARDS DE TAREFA
+   ====================================== */
+.card-hover {
+    transition: transform 0.2s, box-shadow 0.2s;
+    border-radius: 1rem;
+}
+
+    .card-hover:hover {
+        transform: scale(1.02); /* escala menor */
+        box-shadow: 0 5px 10px rgba(0,0,0,0.15); /* sombra mais suave */
+        z-index: 2;
+    }
+
+.border-rounded {
+    border-radius: 1rem;
+}
+
+/* ======================================
+   BADGES
+   ====================================== */
+.badge-status, .badge-prioridade {
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 0.5em 0.8em;
+    border-radius: 0.8rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.badge-status {
+    margin-left: 0.5rem;
+}
+
+.badge-prioridade {
+    margin-top: 0.5rem;
+    display: inline-block;
+}
+
+/* Status: cores suaves */
+.bg-concluido {
+    background-color: #DFF7D8 !important;
+    color: #257500 !important;
+}
+
+.bg-andamento {
+    background-color: #FFFACD !important;
+    color: #8C7600 !important;
+}
+
+.bg-pendente {
+    background-color: #F0F0F0 !important;
+    color: #6C6C6C !important;
+}
+
+/* Prioridade: cores suaves */
+.bg-prioridade-baixa {
+    background-color: #B3D4FF !important;
+    color: #034A8F !important;
+}
+
+.bg-prioridade-media {
+    background-color: #FFF3B3 !important;
+    color: #8C7600 !important;
+}
+
+.bg-prioridade-alta {
+    background-color: #FFB3B3 !important;
+    color: #8F0303 !important;
+}
+
+/* ======================================
+   BOTOES DE AÇÃO NOS CARDS
+   ====================================== */
+.card-footer .btn {
+    min-width: 120px; /* largura maior */
+    padding: 0.5rem 1rem; /* espaçamento interno */
+    border-radius: 0.5rem; /* cantos arredondados */
+    font-weight: 600; /* destaque no texto */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15); /* sombra leve */
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+    .card-footer .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+.btn-outline-primary {
+    color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+    .btn-outline-primary:hover {
+        background-color: #0d6efd;
+        color: white;
+    }
+
+.btn-outline-danger {
+    color: #dc3545;
+    border-color: #dc3545;
+}
+
+    .btn-outline-danger:hover {
+        background-color: #dc3545;
+        color: white;
+    }
