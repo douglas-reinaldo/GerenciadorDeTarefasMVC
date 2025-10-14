@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace GerenciadorDeTarefas.Models
 {
@@ -17,6 +18,10 @@ namespace GerenciadorDeTarefas.Models
         [Required(ErrorMessage = "Email é obrigatório")]
         [EmailAddress]
         public string Email { get; set; }
+
+
+        [BindNever]
+        [ValidateNever]
         public string SenhaHash { get; set; }
 
 

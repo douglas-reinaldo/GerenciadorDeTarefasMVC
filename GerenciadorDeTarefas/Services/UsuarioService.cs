@@ -43,5 +43,26 @@ namespace GerenciadorDeTarefas.Services
             return _context.Usuario.FirstOrDefault(n => n.Id == Id);
         }
 
+        public Usuario obterPorEmail(string email)
+        {
+            return _context.Usuario.FirstOrDefault(n => n.Email == email);
+        }
+
+        public bool SenhaJaExiste(string senha)
+        {
+            var usuarios = _context.Usuario.ToList();
+
+            foreach (var usuario in usuarios)
+            {
+                var resultado = _passwordHasher.VerifyHashedPassword(usuario, usuario.SenhaHash, senha);
+                if (resultado == PasswordVerificationResult.Success)
+                {
+                    return true;
+                }
+            }
+
+            return false; 
+        }
+
     }
 }

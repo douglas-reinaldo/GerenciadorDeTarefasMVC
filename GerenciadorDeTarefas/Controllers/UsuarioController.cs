@@ -29,8 +29,23 @@ namespace GerenciadorDeTarefas.Controllers
         {
             if (!ModelState.IsValid) 
             {
+              
                 return View(usuario);
             }
+
+            var usuarioExistente = _usuarioService.obterPorEmail(usuario.Email);
+            if (usuarioExistente != null) 
+            {
+                ModelState.AddModelError("Email", "Email já cadastrado");
+                return View(usuario);
+            }
+
+            if (_usuarioService.SenhaJaExiste(usuario.Senha)) 
+            {
+                ModelState.AddModelError("Senha", "Senha já cadastrada");
+                return View(usuario);
+            }
+
             _usuarioService.AdicionarUsuario(usuario);
             return RedirectToAction(nameof(Login));
         }
