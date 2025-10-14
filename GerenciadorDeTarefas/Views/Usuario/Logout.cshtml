@@ -1,24 +1,31 @@
-﻿@model GerenciadorDeTarefas.Models.Usuario;
+﻿@model GerenciadorDeTarefas.Models.Usuario
 
-@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
 @{
     ViewData["Title"] = "Logout";
 }
-<h1>@ViewData["Title"]</h1>
 
-<div class="row">
-    <div class="col-md-6">
-        <form asp-action="LogoutConfirmado" method="post">
-            <div class="form-group">
-                <p><strong>Nome: </strong> @Html.DisplayFor(m => m.Nome)</p>
-                <p> <strong>Email: </strong> @Html.DisplayFor(m => m.Email)</p>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4 text-center">
+
+                    <h2 class="mb-4">@ViewData["Title"]</h2>
+
+                    <p class="mb-2"><strong>Nome:</strong> @Html.DisplayFor(m => m.Nome)</p>
+                    <p class="mb-4"><strong>Email:</strong> @Html.DisplayFor(m => m.Email)</p>
+
+                    <form asp-action="LogoutConfirmado" method="post">
+                        @Html.AntiForgeryToken()
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-danger">
+                                Sair
+                            </button>
+                        </div>
+                    </form>
+
+                </div>
             </div>
-            @Html.AntiForgeryToken()
-            <div class="form-group">
-                <input type="submit" value="Sair" class="btn btn-primary mt-5" />
-            </div>
-        </form>
+        </div>
     </div>
 </div>

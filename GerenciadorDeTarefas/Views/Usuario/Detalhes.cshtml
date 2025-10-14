@@ -1,25 +1,33 @@
 ﻿@model GerenciadorDeTarefas.Models.Usuario
 
-@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
 @{
     ViewData["Title"] = "Perfil";
 }
 
-<h1>@ViewData["Title"]</h1>
-<div>
-    <dl class="row">
-        <dt class="col-sm-3">
-            <label asp-for="Nome"></label>
-        </dt>
-        <dd class="col-sm-9">
-            @Html.DisplayFor(model => model.Nome)
-        </dd>
-        <dt class="col-sm-3">
-            <label asp-for="Email"></label>
-        </dt>
-        <dd class="col-sm-9">
-            @Html.DisplayFor(model => model.Email)
-        </dd>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4 text-center">
+
+                    <h2 class="mb-4">@ViewData["Title"]</h2>
+
+                    <dl class="row text-start mb-4">
+                        <dt class="col-sm-4 fw-bold">Nome:</dt>
+                        <dd class="col-sm-8">@Html.DisplayFor(m => m.Nome)</dd>
+
+                        <dt class="col-sm-4 fw-bold">Email:</dt>
+                        <dd class="col-sm-8">@Html.DisplayFor(m => m.Email)</dd>
+                    </dl>
+
+                    <div class="d-grid">
+                        <a asp-action="Logout" class="btn btn-danger">
+                            Logout
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
