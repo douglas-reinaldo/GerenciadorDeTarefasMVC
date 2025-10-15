@@ -126,5 +126,59 @@ namespace GerenciadorDeTarefas.Services
             }
         }
 
+
+        public IEnumerable<Tarefa> BuscarTarefasPorStatus(Status? status, int? id) 
+        {
+            if (id is null) 
+            {
+                _logger.LogWarning("ID do usuário nulo na busca de tarefas por status");
+                throw new ArgumentNullException(nameof(id), "ID do usuário não pode ser nulo.");
+            }
+
+            if (!status.HasValue) 
+            {
+                _logger.LogWarning("Status nulo na busca de tarefas por status");
+                throw new ArgumentNullException(nameof(status), "Status não pode ser nulo.");
+            }
+
+            try 
+            {
+                _logger.LogInformation("Buscando tarefas do usuário pelo status");
+                return _context.Tarefa.Where(s => s.Status.Equals(status) && s.UsuarioId.Equals(id)).ToList();
+            }
+
+            catch (Exception ex) 
+            {
+                _logger.LogError(ex, "Erro inesperado ao buscar tarefas por status para o usuário ID {UserId}", id);
+                throw new InvalidOperationException("Erro inesperado ao buscar tarefas por status.", ex);
+            }
+        }
+
+
+        public IEnumerable<Tarefa> BuscarTarefaPorPrioridade(Prioridade? prioridade, int? id) 
+        {
+            if (id is null)
+            {
+                _logger.LogWarning("ID do usuário nulo na busca de tarefas por prioridade");
+                throw new ArgumentNullException(nameof(id), "ID do usuário não pode ser nulo.");
+            }
+
+            if (!prioridade.HasValue) 
+            {
+                _logger.LogWarning("Prioridade nula na busca de tarefas por prioridade");
+                throw new ArgumentNullException(nameof(prioridade), "Prioridade não pode ser nula.");
+            }
+            try
+            {
+                _logger.LogInformation("Buscando tarefas do usuário pela prioridade");
+                return _context.Tarefa.Where(p => p.Prioridade.Equals(prioridade) && p.UsuarioId.Equals(id)).ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro inesperado ao buscar tarefas por prioridade para o usuário ID {UserId}", id);
+                throw new InvalidOperationException("Erro inesperado ao buscar tarefas por prioridade.", ex);
+            }
+        }
+
     }
 }
