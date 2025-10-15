@@ -40,12 +40,6 @@ namespace GerenciadorDeTarefas.Controllers
                 return View(usuario);
             }
 
-            if (_usuarioService.SenhaJaExiste(usuario.Senha)) 
-            {
-                ModelState.AddModelError("Senha", "Senha já cadastrada");
-                return View(usuario);
-            }
-
             _usuarioService.AdicionarUsuario(usuario);
             HttpContext.Session.SetInt32("UserId", usuario.Id);
             HttpContext.Session.SetString("UserName", usuario.Nome);

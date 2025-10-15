@@ -21,6 +21,10 @@ namespace GerenciadorDeTarefas
             builder.Services.AddScoped<TarefaService>();
             builder.Services.AddSession();
 
+            builder.Logging.ClearProviders();
+            builder.Logging.AddConsole();
+            builder.Logging.AddDebug();
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
