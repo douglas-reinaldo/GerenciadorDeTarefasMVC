@@ -216,8 +216,8 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 
 **Douglas Reinaldo**
 
-- GitHub: [@seu-usuario](https://github.com/douglas-reinaldo)
-- LinkedIn: [Seu Nome](https://linkedin.com/in/douglas-reinaldo-534271233)
+- GitHub: [@Douglas Reinaldo](https://github.com/douglas-reinaldo)
+- LinkedIn: [Douglas Reinaldo](https://linkedin.com/in/douglas-reinaldo-534271233)
 - Email: Douglas39510@gmail.com
 
 ## 🙏 Agradecimentos
