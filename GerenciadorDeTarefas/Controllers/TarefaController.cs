@@ -5,6 +5,7 @@ using GerenciadorDeTarefas.Models;
 using GerenciadorDeTarefas.Models.ViewModels;
 using GerenciadorDeTarefas.Models.Enums;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Threading.Tasks;
 
 namespace GerenciadorDeTarefas.Controllers
 {
@@ -20,17 +21,26 @@ namespace GerenciadorDeTarefas.Controllers
         }
 
         [HttpGet]
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             int userId = HttpContext.Session.GetInt32("UserId").Value;
-            var tarefas = _tarefaService.GetTarefas(userId);
 
-            return View(tarefas);
+            try
+            {
+                var tarefas = await _tarefaService.GetTarefasAsync(userId);
+                return View(tarefas);
+            }
+            catch (InvalidOperationException ex)
+            {
+                TempData["Error"] = ex.Message;
+                return View(new List<Tarefa>());
+            }
+
         }
 
 
         [HttpGet]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
             TarefaFormViewModel viewModel = new TarefaFormViewModel();
             viewModel.statusLista = new SelectList(Enum.GetValues<Status>());
@@ -43,7 +53,7 @@ namespace GerenciadorDeTarefas.Controllers
 
         [ValidateAntiForgeryToken]
         [HttpPost]
-        public IActionResult Create(Tarefa tarefa)
+        public async Task<IActionResult> Create(Tarefa tarefa)
         {
             if (!ModelState.IsValid)
             {
@@ -59,7 +69,7 @@ namespace GerenciadorDeTarefas.Controllers
             try
             {
                 int userId = HttpContext.Session.GetInt32("UserId").Value;
-                _tarefaService.AddTarefa(tarefa, userId);
+                await _tarefaService.AddTarefaAsync(tarefa, userId);
 
                 TempData["Success"] = "Tarefa criada com sucesso!";
                 return RedirectToAction(nameof(Index));
@@ -71,7 +81,7 @@ namespace GerenciadorDeTarefas.Controllers
             }
             catch (Exception ex)
             {               
-                ModelState.AddModelError(string.Empty, "Ocorreu um erro ao criar a tarefa. Tente novamente.");
+                ModelState.AddModelError(string.Empty, ex.Message);
             }
 
             var errorViewModel = new TarefaFormViewModel
@@ -85,7 +95,7 @@ namespace GerenciadorDeTarefas.Controllers
 
 
         [HttpGet]
-        public IActionResult Edit(int? Id)
+        public async Task<IActionResult> Edit(int? Id)
         {
 
             if (Id == null)
@@ -93,30 +103,35 @@ namespace GerenciadorDeTarefas.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            Tarefa tarefa = _tarefaService.ObterTarefaPorId(Id.Value);
-            var viewModel = new TarefaFormViewModel();
-
-            int usuarioLogadoId = HttpContext.Session.GetInt32("UserId").Value;
-            if (tarefa == null)
+            try
             {
-                return NotFound("Tarefa não encontrada");
+                Tarefa tarefa = await _tarefaService.ObterTarefaPorIdAsync(Id.Value);
+                var viewModel = new TarefaFormViewModel();
+
+                int usuarioLogadoId = HttpContext.Session.GetInt32("UserId").Value;
+
+                if (tarefa.UsuarioId != usuarioLogadoId)
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+                ;
+                viewModel.tarefa = tarefa;
+                viewModel.statusLista = new SelectList(Enum.GetValues<Status>());
+                viewModel.prioridadeLista = new SelectList(Enum.GetValues<Prioridade>());
+
+                return View(viewModel);
             }
-            if (tarefa.UsuarioId != usuarioLogadoId)
+            catch (InvalidOperationException ex) 
             {
-                return Unauthorized("Você não tem permissão para editar essa tarefa.");
-            };
-            viewModel.tarefa = tarefa;
-            viewModel.statusLista = new SelectList(Enum.GetValues<Status>());
-            viewModel.prioridadeLista = new SelectList(Enum.GetValues<Prioridade>());
-
-            return View(viewModel);
+                return RedirectToAction(nameof(Index));
+            }
         }
 
 
 
         [ValidateAntiForgeryToken]
         [HttpPost]
-        public IActionResult Edit(Tarefa tarefa)
+        public async Task<IActionResult> Edit(Tarefa tarefa)
         {
             if (!ModelState.IsValid)
             {
@@ -128,74 +143,93 @@ namespace GerenciadorDeTarefas.Controllers
                 };
                 return View(viewModel);
             }
-
-            var tarefaExistente = _tarefaService.ObterTarefaPorId(tarefa.Id);
-            if (tarefaExistente == null)
+            try
             {
-                return NotFound("Tarefa não encontrada");
+                var tarefaExistente = await _tarefaService.ObterTarefaPorIdAsync(tarefa.Id);
+
+                int usuarioLogadoId = HttpContext.Session.GetInt32("UserId").Value;
+                if (tarefaExistente.UsuarioId != usuarioLogadoId)
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+
+                tarefaExistente.Titulo = tarefa.Titulo;
+                tarefaExistente.Descricao = tarefa.Descricao;
+                tarefaExistente.Status = tarefa.Status;
+                tarefaExistente.Prioridade = tarefa.Prioridade;
+
+                await _tarefaService.AtualizarTarefa(tarefaExistente);
+                return RedirectToAction(nameof(Index));
+            }
+            catch (InvalidOperationException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
             }
 
-            int usuarioLogadoId = HttpContext.Session.GetInt32("UserId").Value;
-            if (tarefaExistente.UsuarioId != usuarioLogadoId)
+            var errorViewModel = new TarefaFormViewModel
             {
-                return Unauthorized("Você não tem permissão para editar essa tarefa.");
-            }
-
-
-            tarefaExistente.Titulo = tarefa.Titulo;
-            tarefaExistente.Descricao = tarefa.Descricao;
-            tarefaExistente.Status = tarefa.Status;
-            tarefaExistente.Prioridade = tarefa.Prioridade;
-
-            _tarefaService.AtualizarTarefa(tarefaExistente);
-            return RedirectToAction(nameof(Index));
+                tarefa = tarefa,
+                statusLista = new SelectList(Enum.GetValues<Status>()),
+                prioridadeLista = new SelectList(Enum.GetValues<Prioridade>())
+            };
+            return View(errorViewModel);
         }
 
+
         [HttpGet]
-        public IActionResult Details(int? Id)
+        public async Task<IActionResult> Details(int? Id)
         {
-            if (Id == null)
+            try
+            {
+                Tarefa tarefa = await _tarefaService.ObterTarefaPorIdAsync(Id.Value);
+
+                if (tarefa.UsuarioId != HttpContext.Session.GetInt32("UserId").Value)
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+
+                return View(tarefa);
+            }
+            catch (InvalidOperationException ex)
             {
                 return RedirectToAction(nameof(Index));
             }
-
-            Tarefa tarefa = _tarefaService.ObterTarefaPorId(Id.Value);
-
-            if (tarefa == null)
+            catch (ArgumentException ex)
             {
-                return NotFound("Tarefa não encontrada");
+                return RedirectToAction(nameof(Index));
             }
-            if (tarefa.UsuarioId != HttpContext.Session.GetInt32("UserId").Value)
-            {
-
-                return Unauthorized("Você não tem permissão para acessar essa tarefa.");
-            }
-
-            return View(tarefa);
         }
 
 
         [ValidateAntiForgeryToken]
         [HttpPost]
-        public IActionResult Delete(int? Id)
+        public async Task<IActionResult> Delete(int? Id)
         {
-            if (Id == null)
+            try
+            {
+                Tarefa tarefa = await _tarefaService.ObterTarefaPorIdAsync(Id.Value);
+
+                if (tarefa.UsuarioId != HttpContext.Session.GetInt32("UserId").Value)
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+
+                await _tarefaService.DeletarTarefa(tarefa);
+                return RedirectToAction(nameof(Index));
+            }
+            catch (InvalidOperationException ex)
+            {
+                TempData["Error"] = ex.Message;
+                return RedirectToAction(nameof(Index));
+            }
+            catch (ArgumentException ex)
             {
                 return RedirectToAction(nameof(Index));
             }
-
-            Tarefa tarefa = _tarefaService.ObterTarefaPorId(Id.Value);
-            if (tarefa == null)
-            {
-                return NotFound("Tarefa não encontrada");
-            }
-            if (tarefa.UsuarioId != HttpContext.Session.GetInt32("UserId").Value)
-            {
-                return Unauthorized("Você não tem permissão para acessar essa tarefa.");
-            }
-
-            _tarefaService.DeletarTarefa(tarefa);
-            return RedirectToAction(nameof(Index));
         }
 
 

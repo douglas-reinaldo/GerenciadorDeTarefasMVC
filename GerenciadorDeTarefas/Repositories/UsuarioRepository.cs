@@ -1,6 +1,7 @@
 ﻿using GerenciadorDeTarefas.Data;
 using GerenciadorDeTarefas.Models;
 using GerenciadorDeTarefas.Repositories.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace GerenciadorDeTarefas.Repositories
 {
@@ -12,24 +13,31 @@ namespace GerenciadorDeTarefas.Repositories
             _context = context;
         }
 
-        public void AdicionarUsuario(Usuario usuario)
+
+        public async Task AdicionarUsuarioAsync(Usuario usuario)
         {
-            _context.Add(usuario);
+            await _context.AddAsync(usuario);
         }
 
-        public Usuario ObterUsuarioPorEmail(string email)
+
+
+        public async Task<Usuario> ObterUsuarioPorEmailAsync(string email)
         {
-            return _context.Usuario.Find(email);
+            return await _context.Usuario.FirstOrDefaultAsync(u => u.Email == email);
         }
 
-        public Usuario ObterUsuarioPorId(int id)
+        
+
+        public async Task<Usuario> ObterUsuarioPorIdAsync(int id)
         {
-            return _context.Usuario.Find(id);
+            return await _context.Usuario.FindAsync(id);
         }
 
-        public int SalvarMudancas()
+
+
+        public async Task<int> SalvarMudancasAsync()
         {
-            return _context.SaveChanges();
+            return await _context.SaveChangesAsync();
         }
     }
 }

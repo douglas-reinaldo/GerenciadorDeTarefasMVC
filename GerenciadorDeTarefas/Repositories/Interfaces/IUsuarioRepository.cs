@@ -4,10 +4,10 @@ namespace GerenciadorDeTarefas.Repositories.Interfaces
 {
     public interface IUsuarioRepository
     {
-        public void AdicionarUsuario(Usuario usuario);
-        public Usuario ObterUsuarioPorId(int id);
-        public Usuario ObterUsuarioPorEmail(string email);
+        public Task AdicionarUsuarioAsync(Usuario usuario);
+        public Task<Usuario> ObterUsuarioPorIdAsync(int id);
+        public Task<Usuario> ObterUsuarioPorEmailAsync(string email);
 
-        public int SalvarMudancas();
+        public Task<int> SalvarMudancasAsync();
     }
 }

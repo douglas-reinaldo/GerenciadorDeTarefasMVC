@@ -1,30 +1,54 @@
 ﻿using GerenciadorDeTarefas.Data;
 using GerenciadorDeTarefas.Models;
 using GerenciadorDeTarefas.Models.Enums;
+using GerenciadorDeTarefas.Repositories;
+using GerenciadorDeTarefas.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Data.Common;
 using System.Runtime.InteropServices.Marshalling;
+using System.Threading.Tasks;
 
 namespace GerenciadorDeTarefas.Services
 {
     public class TarefaService
     {
-        private readonly GerenciadorTarefasDbContext _context;
         private readonly ILogger<TarefaService> _logger;
+        private readonly ITarefaRepository _tarefaRepository;
 
-        public TarefaService(GerenciadorTarefasDbContext context, ILogger<TarefaService> logger)
+        public TarefaService(ITarefaRepository tarefaRepository, ILogger<TarefaService> logger)
         {
-            _context = context;
+            _tarefaRepository = tarefaRepository;
             _logger = logger;
         }
 
-        public List<Tarefa> GetTarefas(int userId)
+        public async Task<List<Tarefa>> GetTarefasAsync(int userId)
         {
-            return _context.Tarefa.Where(n => n.UsuarioId == userId).ToList();
+            try
+            {
+                _logger.LogInformation("Buscando tarefas do usuário {UserId}", userId);
+                return await _tarefaRepository.GetTarefasAsync(userId);
+
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogError(ex, "Erro ao buscar tarefas do usuário {UserId}", userId);
+                throw;
+            }
+            catch (TimeoutException ex)
+            {
+                _logger.LogError(ex, "Timeout ao buscar tarefas do usuário {UserId}", userId);
+                throw new InvalidOperationException("Tempo de espera esgotado ao buscar tarefas.", ex);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro inesperado ao buscar tarefas do usuário {UserId}", userId);
+                throw new InvalidOperationException("Erro inesperado ao buscar tarefas.", ex);
+            }
         }
 
 
 
-        public void AddTarefa(Tarefa tarefa, int userId)
+        public async Task AddTarefaAsync(Tarefa tarefa, int userId)
         {
             try
             {
@@ -33,8 +57,8 @@ namespace GerenciadorDeTarefas.Services
                 tarefa.UsuarioId = userId;
                 tarefa.DataCriacao = DateTime.UtcNow;
 
-                _context.Tarefa.Add(tarefa);
-                _context.SaveChanges();
+                await _tarefaRepository.AddTarefaAsync(tarefa);
+                await _tarefaRepository.SalvarMudancasAsync();
 
                 _logger.LogInformation("Tarefa ID {TarefaId} criada com sucesso", tarefa.Id);
             }
@@ -55,13 +79,35 @@ namespace GerenciadorDeTarefas.Services
 
 
 
-        public Tarefa ObterTarefaPorId(int id)
+        public async Task<Tarefa> ObterTarefaPorIdAsync(int id)
         {
-            return _context.Tarefa.Find(id);
+            if (id < 0) 
+            {
+                _logger.LogWarning("ID da tarefa inválido: {TarefaId}", id);
+                throw new ArgumentException(nameof(id), "ID da tarefa deve ser maior que zero.");
+            }
+            try 
+            {
+                Tarefa tarefa =  await _tarefaRepository.ObterTarefaPorIdAsync(id);
+                if (tarefa == null) 
+                {
+                    _logger.LogWarning("Tarefa ID {TarefaId} não encontrada", id);
+                    throw new InvalidOperationException("Tarefa não encontrada.");
+                }
+                return tarefa;
+            }
+            catch (TimeoutException ex)
+            {
+                throw new InvalidOperationException("Tempo de espera esgotado ao buscar a tarefa.", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("Erro inesperado ao buscar a tarefa.", ex);
+            }
         }
 
 
-        public void AtualizarTarefa(Tarefa tarefa)
+        public async Task AtualizarTarefa(Tarefa tarefa)
         {
             if (tarefa == null)
             {
@@ -73,8 +119,8 @@ namespace GerenciadorDeTarefas.Services
             {
                 _logger.LogInformation("Atualizando tarefa ID {TarefaId}", tarefa.Id);
 
-                _context.Tarefa.Update(tarefa);
-                _context.SaveChanges();
+                await _tarefaRepository.AtualizarTarefaAsync(tarefa);
+                await _tarefaRepository.SalvarMudancasAsync();
 
                 _logger.LogInformation("Tarefa ID {TarefaId} atualizada com sucesso", tarefa.Id);
             }
@@ -97,7 +143,7 @@ namespace GerenciadorDeTarefas.Services
 
 
 
-        public void DeletarTarefa(Tarefa tarefa)
+        public async Task DeletarTarefa(Tarefa tarefa)
         {
             if (tarefa == null)
             {
@@ -109,8 +155,8 @@ namespace GerenciadorDeTarefas.Services
             {
                 _logger.LogInformation("Deletando tarefa ID {TarefaId} - '{Titulo}'", tarefa.Id, tarefa.Titulo);
 
-                _context.Tarefa.Remove(tarefa);
-                _context.SaveChanges();
+                await _tarefaRepository.DeletarTarefaAsync(tarefa);
+                await _tarefaRepository.SalvarMudancasAsync();
 
                 _logger.LogInformation("Tarefa ID {TarefaId} deletada com sucesso", tarefa.Id);
             }
@@ -127,7 +173,7 @@ namespace GerenciadorDeTarefas.Services
         }
 
 
-        public IEnumerable<Tarefa> BuscarTarefasPorStatus(Status? status, int? id) 
+        public async Task<IEnumerable<Tarefa>> BuscarTarefasPorStatus(Status? status, int? id) 
         {
             if (id is null) 
             {
@@ -144,7 +190,7 @@ namespace GerenciadorDeTarefas.Services
             try 
             {
                 _logger.LogInformation("Buscando tarefas do usuário pelo status");
-                return _context.Tarefa.Where(s => s.Status.Equals(status) && s.UsuarioId.Equals(id)).ToList();
+                return await _tarefaRepository.BuscarTarefasPorStatusAsync(status.Value, id.Value);
             }
 
             catch (Exception ex) 
@@ -155,7 +201,7 @@ namespace GerenciadorDeTarefas.Services
         }
 
 
-        public IEnumerable<Tarefa> BuscarTarefaPorPrioridade(Prioridade? prioridade, int? id) 
+        public async Task<IEnumerable<Tarefa>> BuscarTarefaPorPrioridade(Prioridade? prioridade, int? id) 
         {
             if (id is null)
             {
@@ -171,12 +217,12 @@ namespace GerenciadorDeTarefas.Services
             try
             {
                 _logger.LogInformation("Buscando tarefas do usuário pela prioridade");
-                return _context.Tarefa.Where(p => p.Prioridade.Equals(prioridade) && p.UsuarioId.Equals(id)).ToList();
+                return await _tarefaRepository.BuscarTarefaPorPrioridadeAsync(prioridade.Value, id.Value);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro inesperado ao buscar tarefas por prioridade para o usuário ID {UserId}", id);
-                throw new InvalidOperationException("Erro inesperado ao buscar tarefas por prioridade.", ex);
+                throw new Exception("Erro inesperado ao buscar tarefas por prioridade.", ex);
             }
         }
 

@@ -15,44 +15,63 @@ namespace GerenciadorDeTarefas.Repositories
             _context = context;
         }
 
-        public void AddTarefa(Tarefa tarefa, int userId)
+
+        public async Task AddTarefaAsync(Tarefa tarefa)
         {
-            _context.Tarefa.Add(tarefa);
+            await _context.Tarefa.AddAsync(tarefa);
         }
 
-        public void AtualizarTarefa(Tarefa tarefa)
+
+
+        public async Task AtualizarTarefaAsync(Tarefa tarefa)
         {
             _context.Tarefa.Update(tarefa);
         }
 
-        public IEnumerable<Tarefa> BuscarTarefaPorPrioridade(Prioridade prioridade, int id)
+
+
+        public async Task<IEnumerable<Tarefa>> BuscarTarefaPorPrioridadeAsync(Prioridade prioridade, int id)
         {
-            return _context.Tarefa.Where(s => s.Prioridade.Equals(prioridade) && s.UsuarioId.Equals(id)).ToList();
+            return await _context.Tarefa.Where(s => s.Prioridade.Equals(prioridade) && s.UsuarioId.Equals(id)).ToListAsync();
         }
 
-        public IEnumerable<Tarefa> BuscarTarefasPorStatus(Status status, int id)
+
+
+        public async Task<IEnumerable<Tarefa>> BuscarTarefasPorStatusAsync(Status status, int id)
         {
-            return _context.Tarefa.Where(s => s.Status.Equals(status) && s.UsuarioId.Equals(id)).ToList();
+            return await _context.Tarefa.Where(s => s.Status.Equals(status) && s.UsuarioId.Equals(id)).ToListAsync();
         }
 
-        public void DeletarTarefa(Tarefa tarefa)
+
+
+        public async Task DeletarTarefaAsync(Tarefa tarefa)
         {
             _context.Tarefa.Remove(tarefa);
         }
 
-        public List<Tarefa> GetTarefas(int userId)
+
+
+        public async Task<List<Tarefa>> GetTarefasAsync(int userId)
         {
-            return _context.Tarefa.Where(n => n.UsuarioId.Equals(userId)).ToList();
+            return await _context.Tarefa.Where(n => n.UsuarioId.Equals(userId)).ToListAsync();
         }
 
-        public Tarefa ObterTarefaPorId(int id)
+
+
+        public async Task<Tarefa> ObterTarefaPorIdAsync(int id)
         {
-            return _context.Tarefa.Find(id);
+            return await _context.Tarefa.FindAsync(id);
         }
 
-        public int SalvarMudancas()
+
+
+        public async Task<int> SalvarMudancasAsync()
         {
-            return _context.SaveChanges();
+            return await _context.SaveChangesAsync();
         }
+
+        
+
+
     }
 }

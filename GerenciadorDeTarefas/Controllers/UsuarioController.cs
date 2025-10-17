@@ -10,11 +10,12 @@ namespace GerenciadorDeTarefas.Controllers
     public class UsuarioController : Controller
     {
         private readonly UsuarioService _usuarioService;
+        private readonly ILogger<UsuarioController> _logger;
 
-
-        public UsuarioController(UsuarioService usuarioService)
+        public UsuarioController(UsuarioService usuarioService, ILogger<UsuarioController> logger)
         {
             _usuarioService = usuarioService;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -25,27 +26,34 @@ namespace GerenciadorDeTarefas.Controllers
 
         [ValidateAntiForgeryToken]
         [HttpPost]
-        public IActionResult Cadastro(Usuario usuario) 
+        public async Task<IActionResult> Cadastro(Usuario usuario)
         {
-            if (!ModelState.IsValid) 
+            if (!ModelState.IsValid)
             {
-              
                 return View(usuario);
             }
 
-            var usuarioExistente = _usuarioService.obterPorEmail(usuario.Email);
-            if (usuarioExistente != null) 
+            try
             {
-                ModelState.AddModelError("Email", "Email já cadastrado");
+                var usuarioExistente = await _usuarioService.ObterPorEmailAsync(usuario.Email);
+                if (usuarioExistente != null)
+                {
+                    ModelState.AddModelError("Email", "Email já cadastrado");
+                    return View(usuario);
+                }
+
+                await _usuarioService.AdicionarUsuarioAsync(usuario);
+                HttpContext.Session.SetInt32("UserId", usuario.Id);
+                HttpContext.Session.SetString("UserName", usuario.Nome);
+
+
+                return RedirectToAction("Index", "Tarefa");
+            }
+            catch (InvalidOperationException e)
+            {
+                ModelState.AddModelError(string.Empty, e.Message);
                 return View(usuario);
             }
-
-            _usuarioService.AdicionarUsuario(usuario);
-            HttpContext.Session.SetInt32("UserId", usuario.Id);
-            HttpContext.Session.SetString("UserName", usuario.Nome);
-
-
-            return RedirectToAction("Index", "Tarefa");
         }
 
         [HttpGet]
@@ -57,64 +65,99 @@ namespace GerenciadorDeTarefas.Controllers
 
         [ValidateAntiForgeryToken]
         [HttpPost]
-        public IActionResult Login(LoginRequestDTO request)
+        public async Task<IActionResult> Login(LoginRequestDTO request)
         {
             if (!ModelState.IsValid)
                 return View(request);
 
-            var usuario = _usuarioService.Autenticar(request.Email, request.Senha);
-            if (usuario == null)
+            try
             {
+                var usuario = await _usuarioService.Autenticar(request.Email, request.Senha);
+                if (usuario == null)
+                {
 
-                ModelState.AddModelError(string.Empty, "Email ou senha incorretos");
+                    ModelState.AddModelError(string.Empty, "Email ou senha incorretos");
+                    return View(request);
+                }
+
+                HttpContext.Session.SetInt32("UserId", usuario.Id);
+                HttpContext.Session.SetString("UserName", usuario.Nome);
+
+                return RedirectToAction("Index", "Tarefa");
+            }
+            catch (InvalidOperationException e)
+            {
+                ModelState.AddModelError(string.Empty, e.Message);
                 return View(request);
             }
-
-            HttpContext.Session.SetInt32("UserId", usuario.Id);
-            HttpContext.Session.SetString("UserName", usuario.Nome);
-
-            return RedirectToAction("Index", "Tarefa");
+            catch (Exception e)
+            {
+                ModelState.AddModelError(string.Empty, e.Message);
+                return View(request);
+            }
         }
 
 
 
         [HttpGet]
-        public IActionResult Logout() 
+        public async Task<IActionResult> Logout()
         {
             var usuarioId = HttpContext.Session.GetInt32("UserId");
-            if (usuarioId != null) 
+            if (usuarioId == null)
             {
-                
-                var usuario = _usuarioService.obterPorId(usuarioId.Value);
+                return RedirectToAction(nameof(Login));
+
+            }
+            try
+            {
+                var usuario = await _usuarioService.ObterPorIdAsync(usuarioId.Value);
                 return View(usuario);
             }
-            return RedirectToAction(nameof(Login));
-            
+            catch (InvalidOperationException)
+            {
+                return RedirectToAction(nameof(Login));
+
+            }
+            catch (ArgumentException)
+            {
+                return RedirectToAction(nameof(Login));
+            }
         }
 
 
         [ValidateAntiForgeryToken]
         [HttpPost]
-        public IActionResult LogoutConfirmado() 
+        public IActionResult LogoutConfirmado()
         {
             HttpContext.Session.Clear();
             return RedirectToAction(nameof(Login));
         }
 
         [HttpGet]
-        public IActionResult Detalhes() 
+        public async Task<IActionResult> Detalhes()
         {
             var usuarioId = HttpContext.Session.GetInt32("UserId");
-            if (usuarioId != null)
+            if (usuarioId == null)
             {
-                var usuario = _usuarioService.obterPorId(usuarioId.Value);
+                return RedirectToAction(nameof(Login));
+                
+            }
+            try
+            {
+                var usuario = await _usuarioService.ObterPorIdAsync(usuarioId.Value);
                 return View(usuario);
             }
-            return RedirectToAction(nameof(Login));
+            catch (Exception e) when (e is InvalidOperationException || e is ArgumentException)
+            {
+                _logger.LogWarning(e, "Falha ao carregar detalhes do usuário {UserId}", usuarioId);
+                return RedirectToAction(nameof(Index), nameof(Tarefa));
+            }
+            
+
         }
 
 
-      
+
 
     }
 }

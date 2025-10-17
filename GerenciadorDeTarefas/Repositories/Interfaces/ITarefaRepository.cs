@@ -5,14 +5,14 @@ namespace GerenciadorDeTarefas.Repositories.Interfaces
 {
     public interface ITarefaRepository
     {
-        public List<Tarefa> GetTarefas(int userId);
-        public void AddTarefa(Tarefa tarefa, int userId);
-        public Tarefa ObterTarefaPorId(int id);
-        public void AtualizarTarefa(Tarefa tarefa);
-        public void DeletarTarefa(Tarefa tarefa);
-        public IEnumerable<Tarefa> BuscarTarefasPorStatus(Status status, int id);
-        public IEnumerable<Tarefa> BuscarTarefaPorPrioridade(Prioridade prioridade, int id);
+        public Task<List<Tarefa>> GetTarefasAsync(int userId);
+        public Task AddTarefaAsync(Tarefa tarefa);
+        public Task<Tarefa> ObterTarefaPorIdAsync(int id);
+        public Task AtualizarTarefaAsync(Tarefa tarefa);
+        public Task DeletarTarefaAsync(Tarefa tarefa);
+        public Task<IEnumerable<Tarefa>> BuscarTarefasPorStatusAsync(Status status, int id);
+        public Task<IEnumerable<Tarefa>> BuscarTarefaPorPrioridadeAsync(Prioridade prioridade, int id);
 
-        public int SalvarMudancas();
+        public Task<int> SalvarMudancasAsync();
     }
 }

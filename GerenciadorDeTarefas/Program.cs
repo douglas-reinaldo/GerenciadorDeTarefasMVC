@@ -1,5 +1,7 @@
 using GerenciadorDeTarefas.Data;
 using GerenciadorDeTarefas.Models;
+using GerenciadorDeTarefas.Repositories;
+using GerenciadorDeTarefas.Repositories.Interfaces;
 using GerenciadorDeTarefas.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,6 +19,8 @@ namespace GerenciadorDeTarefas
             options.UseMySql(builder.Configuration.GetConnectionString("GerenciadorDeTarefas"),
             ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("GerenciadorDeTarefas"))));
 
+            builder.Services.AddScoped<ITarefaRepository, TarefaRepository>();
+            builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
             builder.Services.AddScoped<UsuarioService>();
             builder.Services.AddScoped<TarefaService>();
             builder.Services.AddSession();
