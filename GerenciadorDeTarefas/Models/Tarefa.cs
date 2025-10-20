@@ -19,7 +19,7 @@ namespace GerenciadorDeTarefas.Models
 
         [Display(Name = "Descrição")]
         [Required(ErrorMessage = "A Descrição é obrigatória")]
-        [StringLength(500, ErrorMessage = "A Descrição só permite até 100 caracteres")]
+        [StringLength(500, ErrorMessage = "A Descrição só permite até 500 caracteres")]
         public string Descricao { get; set; }
 
 
