@@ -173,7 +173,7 @@ namespace GerenciadorDeTarefas.Services
         }
 
 
-        public async Task<IEnumerable<Tarefa>> BuscarTarefasPorStatus(Status? status, int? id) 
+        public async Task<IEnumerable<Tarefa>> BuscarTarefasPorStatusAsync(Status? status, int? id) 
         {
             if (id is null) 
             {
@@ -207,7 +207,7 @@ namespace GerenciadorDeTarefas.Services
         }
 
 
-        public async Task<IEnumerable<Tarefa>> BuscarTarefaPorPrioridade(Prioridade? prioridade, int? id) 
+        public async Task<IEnumerable<Tarefa>> BuscarTarefasPorPrioridadeAsync(Prioridade? prioridade, int? id) 
         {
             if (id is null)
             {
@@ -225,10 +225,15 @@ namespace GerenciadorDeTarefas.Services
                 _logger.LogInformation("Buscando tarefas do usuário pela prioridade");
                 return await _tarefaRepository.BuscarTarefasPorPrioridadeAsync(prioridade.Value, id.Value);
             }
+            catch (TimeoutException ex)
+            {
+                _logger.LogError(ex, "Timeout ao buscar tarefas por status para o usuário ID {UserId}", id);
+                throw new InvalidOperationException("Tempo de espera esgotado ao buscar tarefas por status.", ex);
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro inesperado ao buscar tarefas por prioridade para o usuário ID {UserId}", id);
-                throw new Exception("Erro inesperado ao buscar tarefas por prioridade.", ex);
+                throw new InvalidOperationException("Erro inesperado ao buscar tarefas por prioridade.", ex);
             }
         }
 
