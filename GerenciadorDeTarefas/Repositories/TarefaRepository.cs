@@ -23,14 +23,15 @@ namespace GerenciadorDeTarefas.Repositories
 
 
 
-        public async Task AtualizarTarefaAsync(Tarefa tarefa)
+        public Task AtualizarTarefaAsync(Tarefa tarefa)
         {
             _context.Tarefa.Update(tarefa);
+            return Task.CompletedTask;
         }
 
 
 
-        public async Task<IEnumerable<Tarefa>> BuscarTarefaPorPrioridadeAsync(Prioridade prioridade, int id)
+        public async Task<IEnumerable<Tarefa>> BuscarTarefasPorPrioridadeAsync(Prioridade prioridade, int id)
         {
             return await _context.Tarefa.Where(s => s.Prioridade.Equals(prioridade) && s.UsuarioId.Equals(id)).ToListAsync();
         }
@@ -44,9 +45,10 @@ namespace GerenciadorDeTarefas.Repositories
 
 
 
-        public async Task DeletarTarefaAsync(Tarefa tarefa)
+        public Task DeletarTarefaAsync(Tarefa tarefa)
         {
             _context.Tarefa.Remove(tarefa);
+            return Task.CompletedTask;
         }
 
 

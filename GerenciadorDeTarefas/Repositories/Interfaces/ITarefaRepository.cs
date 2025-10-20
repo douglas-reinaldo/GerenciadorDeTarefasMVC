@@ -11,7 +11,7 @@ namespace GerenciadorDeTarefas.Repositories.Interfaces
         public Task AtualizarTarefaAsync(Tarefa tarefa);
         public Task DeletarTarefaAsync(Tarefa tarefa);
         public Task<IEnumerable<Tarefa>> BuscarTarefasPorStatusAsync(Status status, int id);
-        public Task<IEnumerable<Tarefa>> BuscarTarefaPorPrioridadeAsync(Prioridade prioridade, int id);
+        public Task<IEnumerable<Tarefa>> BuscarTarefasPorPrioridadeAsync(Prioridade prioridade, int id);
 
         public Task<int> SalvarMudancasAsync();
     }

@@ -147,12 +147,22 @@ namespace GerenciadorDeTarefas.Controllers
                 var usuario = await _usuarioService.ObterPorIdAsync(usuarioId.Value);
                 return View(usuario);
             }
-            catch (Exception e) when (e is InvalidOperationException || e is ArgumentException)
+            catch (ArgumentException e)
             {
-                _logger.LogWarning(e, "Falha ao carregar detalhes do usuário {UserId}", usuarioId);
+                _logger.LogError(e, "ID de usuário inválido na sessão: {UserId}", usuarioId);
                 return RedirectToAction(nameof(Index), nameof(Tarefa));
             }
-            
+            catch(InvalidOperationException e)
+            {
+                _logger.LogError(e, "Erro ao carregar detalhes do usuário {UserId}", usuarioId);
+                return RedirectToAction(nameof(Index), nameof(Tarefa));
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Erro inesperado ao carregar detalhes do usuário {UserId}", usuarioId);
+                return RedirectToAction(nameof(Index), nameof(Tarefa));
+            }
+
 
         }
 

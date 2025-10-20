@@ -81,7 +81,7 @@ namespace GerenciadorDeTarefas.Services
 
         public async Task<Tarefa> ObterTarefaPorIdAsync(int id)
         {
-            if (id < 0) 
+            if (id <= 0) 
             {
                 _logger.LogWarning("ID da tarefa inválido: {TarefaId}", id);
                 throw new ArgumentException(nameof(id), "ID da tarefa deve ser maior que zero.");
@@ -193,6 +193,12 @@ namespace GerenciadorDeTarefas.Services
                 return await _tarefaRepository.BuscarTarefasPorStatusAsync(status.Value, id.Value);
             }
 
+            catch (TimeoutException ex) 
+            {
+                _logger.LogError(ex, "Timeout ao buscar tarefas por status para o usuário ID {UserId}", id);
+                throw new InvalidOperationException("Tempo de espera esgotado ao buscar tarefas por status.", ex);
+            }
+            
             catch (Exception ex) 
             {
                 _logger.LogError(ex, "Erro inesperado ao buscar tarefas por status para o usuário ID {UserId}", id);
@@ -217,7 +223,7 @@ namespace GerenciadorDeTarefas.Services
             try
             {
                 _logger.LogInformation("Buscando tarefas do usuário pela prioridade");
-                return await _tarefaRepository.BuscarTarefaPorPrioridadeAsync(prioridade.Value, id.Value);
+                return await _tarefaRepository.BuscarTarefasPorPrioridadeAsync(prioridade.Value, id.Value);
             }
             catch (Exception ex)
             {
