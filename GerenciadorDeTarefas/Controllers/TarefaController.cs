@@ -98,7 +98,7 @@ namespace GerenciadorDeTarefas.Controllers
         public async Task<IActionResult> Edit(int? Id)
         {
 
-            if (Id == null)
+            if (Id is null)
             {
                 return RedirectToAction(nameof(Index));
             }
@@ -185,6 +185,10 @@ namespace GerenciadorDeTarefas.Controllers
         {
             try
             {
+                if (Id is null) 
+                {
+                    return RedirectToAction(nameof(Index));
+                }
                 Tarefa tarefa = await _tarefaService.ObterTarefaPorIdAsync(Id.Value);
 
                 if (tarefa.UsuarioId != HttpContext.Session.GetInt32("UserId").Value)
@@ -211,6 +215,10 @@ namespace GerenciadorDeTarefas.Controllers
         {
             try
             {
+                if (Id is null) 
+                {
+                    return RedirectToAction(nameof(Index));
+                }
                 Tarefa tarefa = await _tarefaService.ObterTarefaPorIdAsync(Id.Value);
 
                 if (tarefa.UsuarioId != HttpContext.Session.GetInt32("UserId").Value)

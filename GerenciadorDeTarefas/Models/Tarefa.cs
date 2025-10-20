@@ -46,9 +46,5 @@ namespace GerenciadorDeTarefas.Models
         [Display(Name = "Prioridadde da Tarefa")]
         [Required(ErrorMessage = "É necessario definir uma prioridade")]
         public Prioridade Prioridade { get; set; }
-        public int V1 { get; }
-        public string V2 { get; }
-        public string V3 { get; }
-        public object Value { get; }
     }
 }

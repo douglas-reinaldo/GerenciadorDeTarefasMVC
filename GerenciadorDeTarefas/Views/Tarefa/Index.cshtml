@@ -70,10 +70,12 @@
 
                             <form asp-action="Delete" asp-route-id="@tarefa.Id" method="post" class="d-inline"
                                   onsubmit="return confirm('Tem certeza que deseja excluir esta tarefa?');">
+                                @Html.AntiForgeryToken()
                                 <button type="submit" class="btn btn-outline-danger btn-sm">
                                     Excluir
                                 </button>
                             </form>
+
                         </div>
 
                         <small class="text-muted">
