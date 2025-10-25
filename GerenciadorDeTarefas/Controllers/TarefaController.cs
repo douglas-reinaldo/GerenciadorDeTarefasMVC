@@ -35,6 +35,11 @@ namespace GerenciadorDeTarefas.Controllers
                 TempData["Error"] = ex.Message;
                 return View(new List<Tarefa>());
             }
+            catch (Exception ex) 
+            {
+                TempData["Error"] = ex.Message;
+                return View(new List<Tarefa>());
+            }
 
         }
 
@@ -180,6 +185,8 @@ namespace GerenciadorDeTarefas.Controllers
         }
 
 
+
+
         [HttpGet]
         public async Task<IActionResult> Details(int? Id)
         {
@@ -207,6 +214,8 @@ namespace GerenciadorDeTarefas.Controllers
                 return RedirectToAction(nameof(Index));
             }
         }
+
+
 
 
         [ValidateAntiForgeryToken]
@@ -240,6 +249,6 @@ namespace GerenciadorDeTarefas.Controllers
             }
         }
 
-
+        
     }
 }

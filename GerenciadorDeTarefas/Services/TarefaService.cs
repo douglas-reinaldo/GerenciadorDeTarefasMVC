@@ -33,7 +33,8 @@ namespace GerenciadorDeTarefas.Services
             if (userId <= 0) 
             {
                 _logger.LogWarning("ID do usuário inválido: {UserId}", userId);
-                throw new ArgumentException("ID do usuário deve ser maior que zero.", nameof(userId));
+                throw new ArgumentOutOfRangeException(nameof(userId), "O ID do usuário deve ser maior que zero.");
+
             }
 
             try
@@ -97,7 +98,8 @@ namespace GerenciadorDeTarefas.Services
             if (id <= 0) 
             {
                 _logger.LogWarning("ID da tarefa inválido: {TarefaId}", id);
-                throw new ArgumentException(nameof(id), "ID da tarefa deve ser maior que zero.");
+                throw new ArgumentOutOfRangeException(nameof(id), "O ID da tarefa deve ser maior que zero.");
+
             }
             try 
             {
