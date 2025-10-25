@@ -27,7 +27,7 @@ namespace GerenciadorDeTarefas.Controllers
 
             try
             {
-                var tarefas = await _tarefaService.GetTarefasAsync(userId);
+                var tarefas = await _tarefaService.ListarTarefasDoUsuarioAsync(userId);
                 return View(tarefas);
             }
             catch (InvalidOperationException ex)
@@ -69,7 +69,7 @@ namespace GerenciadorDeTarefas.Controllers
             try
             {
                 int userId = HttpContext.Session.GetInt32("UserId").Value;
-                await _tarefaService.AddTarefaAsync(tarefa, userId);
+                await _tarefaService.CriarTarefaAsync(tarefa, userId);
 
                 TempData["Success"] = "Tarefa criada com sucesso!";
                 return RedirectToAction(nameof(Index));
@@ -105,7 +105,7 @@ namespace GerenciadorDeTarefas.Controllers
 
             try
             {
-                Tarefa tarefa = await _tarefaService.ObterTarefaPorIdAsync(Id.Value);
+                Tarefa tarefa = await _tarefaService.BuscarTarefaPorIdAsync(Id.Value);
                 var viewModel = new TarefaFormViewModel();
 
                 int usuarioLogadoId = HttpContext.Session.GetInt32("UserId").Value;
@@ -145,7 +145,7 @@ namespace GerenciadorDeTarefas.Controllers
             }
             try
             {
-                var tarefaExistente = await _tarefaService.ObterTarefaPorIdAsync(tarefa.Id);
+                var tarefaExistente = await _tarefaService.BuscarTarefaPorIdAsync(tarefa.Id);
 
                 int usuarioLogadoId = HttpContext.Session.GetInt32("UserId").Value;
                 if (tarefaExistente.UsuarioId != usuarioLogadoId)
@@ -158,7 +158,7 @@ namespace GerenciadorDeTarefas.Controllers
                 tarefaExistente.Status = tarefa.Status;
                 tarefaExistente.Prioridade = tarefa.Prioridade;
 
-                await _tarefaService.AtualizarTarefa(tarefaExistente);
+                await _tarefaService.AtualizarDadosDaTarefaAsync(tarefaExistente);
                 return RedirectToAction(nameof(Index));
             }
             catch (InvalidOperationException ex)
@@ -189,7 +189,7 @@ namespace GerenciadorDeTarefas.Controllers
                 {
                     return RedirectToAction(nameof(Index));
                 }
-                Tarefa tarefa = await _tarefaService.ObterTarefaPorIdAsync(Id.Value);
+                Tarefa tarefa = await _tarefaService.BuscarTarefaPorIdAsync(Id.Value);
 
                 if (tarefa.UsuarioId != HttpContext.Session.GetInt32("UserId").Value)
                 {
@@ -219,14 +219,14 @@ namespace GerenciadorDeTarefas.Controllers
                 {
                     return RedirectToAction(nameof(Index));
                 }
-                Tarefa tarefa = await _tarefaService.ObterTarefaPorIdAsync(Id.Value);
+                Tarefa tarefa = await _tarefaService.BuscarTarefaPorIdAsync(Id.Value);
 
                 if (tarefa.UsuarioId != HttpContext.Session.GetInt32("UserId").Value)
                 {
                     return RedirectToAction(nameof(Index));
                 }
 
-                await _tarefaService.DeletarTarefa(tarefa);
+                await _tarefaService.RemoverTarefaAsync(tarefa);
                 return RedirectToAction(nameof(Index));
             }
             catch (InvalidOperationException ex)

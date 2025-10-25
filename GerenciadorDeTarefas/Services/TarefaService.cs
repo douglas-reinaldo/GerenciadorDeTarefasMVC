@@ -21,12 +21,25 @@ namespace GerenciadorDeTarefas.Services
             _logger = logger;
         }
 
-        public async Task<List<Tarefa>> GetTarefasAsync(int userId)
+
+        public async Task<List<Tarefa>> ListarTarefasDoUsuarioAsync(int? userId)
         {
+            if (userId is null)
+            {
+                _logger.LogWarning("ID do usuário nulo na busca de tarefas por status");
+                throw new ArgumentNullException("ID do usuário não pode ser nulo.", nameof(userId));
+            }
+
+            if (userId <= 0) 
+            {
+                _logger.LogWarning("ID do usuário inválido: {UserId}", userId);
+                throw new ArgumentException("ID do usuário deve ser maior que zero.", nameof(userId));
+            }
+
             try
             {
                 _logger.LogInformation("Buscando tarefas do usuário {UserId}", userId);
-                return await _tarefaRepository.GetTarefasAsync(userId);
+                return await _tarefaRepository.ObterTarefasPorUserIdAsync(userId.Value);
 
             }
             catch (InvalidOperationException ex)
@@ -48,7 +61,7 @@ namespace GerenciadorDeTarefas.Services
 
 
 
-        public async Task AddTarefaAsync(Tarefa tarefa, int userId)
+        public async Task CriarTarefaAsync(Tarefa tarefa, int userId)
         {
             try
             {
@@ -57,7 +70,7 @@ namespace GerenciadorDeTarefas.Services
                 tarefa.UsuarioId = userId;
                 tarefa.DataCriacao = DateTime.UtcNow;
 
-                await _tarefaRepository.AddTarefaAsync(tarefa);
+                await _tarefaRepository.AdicionarAsync(tarefa);
                 await _tarefaRepository.SalvarMudancasAsync();
 
                 _logger.LogInformation("Tarefa ID {TarefaId} criada com sucesso", tarefa.Id);
@@ -79,7 +92,7 @@ namespace GerenciadorDeTarefas.Services
 
 
 
-        public async Task<Tarefa> ObterTarefaPorIdAsync(int id)
+        public async Task<Tarefa> BuscarTarefaPorIdAsync(int id)
         {
             if (id <= 0) 
             {
@@ -107,7 +120,7 @@ namespace GerenciadorDeTarefas.Services
         }
 
 
-        public async Task AtualizarTarefa(Tarefa tarefa)
+        public async Task AtualizarDadosDaTarefaAsync(Tarefa tarefa)
         {
             if (tarefa == null)
             {
@@ -119,7 +132,7 @@ namespace GerenciadorDeTarefas.Services
             {
                 _logger.LogInformation("Atualizando tarefa ID {TarefaId}", tarefa.Id);
 
-                await _tarefaRepository.AtualizarTarefaAsync(tarefa);
+                await _tarefaRepository.Atualizar(tarefa);
                 await _tarefaRepository.SalvarMudancasAsync();
 
                 _logger.LogInformation("Tarefa ID {TarefaId} atualizada com sucesso", tarefa.Id);
@@ -143,7 +156,7 @@ namespace GerenciadorDeTarefas.Services
 
 
 
-        public async Task DeletarTarefa(Tarefa tarefa)
+        public async Task RemoverTarefaAsync(Tarefa tarefa)
         {
             if (tarefa == null)
             {
@@ -155,7 +168,7 @@ namespace GerenciadorDeTarefas.Services
             {
                 _logger.LogInformation("Deletando tarefa ID {TarefaId} - '{Titulo}'", tarefa.Id, tarefa.Titulo);
 
-                await _tarefaRepository.DeletarTarefaAsync(tarefa);
+                await _tarefaRepository.Deletar(tarefa);
                 await _tarefaRepository.SalvarMudancasAsync();
 
                 _logger.LogInformation("Tarefa ID {TarefaId} deletada com sucesso", tarefa.Id);

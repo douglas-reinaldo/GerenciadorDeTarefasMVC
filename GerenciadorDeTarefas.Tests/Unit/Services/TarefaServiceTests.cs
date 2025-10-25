@@ -41,6 +41,8 @@ namespace GerenciadorDeTarefas.Tests.Unit.Services
                 new Tarefa { Id = 3, Titulo = "T3", Status = Status.CONCLUIDA, UsuarioId = userId },
             };
 
+            
+
             // Setup: Configurar o mock para retornar tarefas pelo status
             _tarefaRepositoryMock
                 .Setup(r => r.BuscarTarefasPorStatusAsync(status, userId))
@@ -214,7 +216,7 @@ namespace GerenciadorDeTarefas.Tests.Unit.Services
             await Assert.ThrowsAsync<InvalidOperationException>(() => _tarefaService.BuscarTarefasPorPrioridadeAsync(It.IsAny<Prioridade>(), userId));
 
             _tarefaRepositoryMock.Verify(
-                s => s.BuscarTarefasPorPrioridadeAsync(It.IsAny<Prioridade>(), userId),
+                s => s.BuscarTarefasPorPrioridadeAsync(Prioridade.Alta, userId),
                 Times.Once
                 );
         }
@@ -238,6 +240,9 @@ namespace GerenciadorDeTarefas.Tests.Unit.Services
             // Assert
             Assert.Empty(resultado);
         }
+
+
+        
 
     }
 }
