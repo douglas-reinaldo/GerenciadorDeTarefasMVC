@@ -93,8 +93,13 @@ namespace GerenciadorDeTarefas.Services
 
 
 
-        public async Task<Tarefa?> BuscarTarefaPorIdAsync(int id)
+        public async Task<Tarefa?> BuscarTarefaPorIdAsync(int? id)
         {
+            if (id is null) 
+            {
+                _logger.LogWarning("ID da tarefa nulo na busca de tarefa por ID");
+                throw new ArgumentNullException(nameof(id), "O ID da tarefa não pode ser nulo.");
+            }
             if (id <= 0) 
             {
                 _logger.LogWarning("ID da tarefa inválido: {TarefaId}", id);
@@ -103,7 +108,7 @@ namespace GerenciadorDeTarefas.Services
             }
             try 
             {
-                Tarefa tarefa =  await _tarefaRepository.ObterTarefaPorIdAsync(id);
+                Tarefa tarefa =  await _tarefaRepository.ObterTarefaPorIdAsync(id.Value);
                 if (tarefa == null) 
                 {
                     _logger.LogInformation("Tarefa ID {TarefaId} não encontrada.", id);
