@@ -93,7 +93,7 @@ namespace GerenciadorDeTarefas.Services
 
 
 
-        public async Task<Tarefa> BuscarTarefaPorIdAsync(int id)
+        public async Task<Tarefa?> BuscarTarefaPorIdAsync(int id)
         {
             if (id <= 0) 
             {
@@ -106,8 +106,8 @@ namespace GerenciadorDeTarefas.Services
                 Tarefa tarefa =  await _tarefaRepository.ObterTarefaPorIdAsync(id);
                 if (tarefa == null) 
                 {
-                    _logger.LogWarning("Tarefa ID {TarefaId} não encontrada", id);
-                    throw new InvalidOperationException("Tarefa não encontrada.");
+                    _logger.LogInformation("Tarefa ID {TarefaId} não encontrada.", id);
+                    return null;
                 }
                 return tarefa;
             }
@@ -186,6 +186,7 @@ namespace GerenciadorDeTarefas.Services
                 throw new InvalidOperationException("Erro inesperado ao deletar tarefa.", ex);
             }
         }
+
 
 
         public async Task<IEnumerable<Tarefa>> BuscarTarefasPorStatusAsync(Status? status, int? id) 

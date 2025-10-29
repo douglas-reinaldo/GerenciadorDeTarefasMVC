@@ -30,11 +30,6 @@ namespace GerenciadorDeTarefas.Controllers
                 var tarefas = await _tarefaService.ListarTarefasDoUsuarioAsync(userId);
                 return View(tarefas);
             }
-            catch (InvalidOperationException ex)
-            {
-                TempData["Error"] = ex.Message;
-                return View(new List<Tarefa>());
-            }
             catch (Exception ex) 
             {
                 TempData["Error"] = ex.Message;
@@ -79,11 +74,6 @@ namespace GerenciadorDeTarefas.Controllers
                 TempData["Success"] = "Tarefa criada com sucesso!";
                 return RedirectToAction(nameof(Index));
             }
-            catch (InvalidOperationException ex)
-            {
-
-                ModelState.AddModelError(string.Empty, ex.Message);
-            }
             catch (Exception ex)
             {               
                 ModelState.AddModelError(string.Empty, ex.Message);
@@ -102,16 +92,15 @@ namespace GerenciadorDeTarefas.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int? Id)
         {
-
-            if (Id is null)
-            {
-                return RedirectToAction(nameof(Index));
-            }
-
             try
             {
-                Tarefa tarefa = await _tarefaService.BuscarTarefaPorIdAsync(Id.Value);
+                Tarefa? tarefa = await _tarefaService.BuscarTarefaPorIdAsync(Id.Value);
                 var viewModel = new TarefaFormViewModel();
+
+                if (tarefa is null)
+                {
+                    return RedirectToAction(nameof(Index));
+                }
 
                 int usuarioLogadoId = HttpContext.Session.GetInt32("UserId").Value;
 
@@ -126,7 +115,7 @@ namespace GerenciadorDeTarefas.Controllers
 
                 return View(viewModel);
             }
-            catch (InvalidOperationException ex) 
+            catch (Exception) 
             {
                 return RedirectToAction(nameof(Index));
             }
@@ -150,9 +139,15 @@ namespace GerenciadorDeTarefas.Controllers
             }
             try
             {
-                var tarefaExistente = await _tarefaService.BuscarTarefaPorIdAsync(tarefa.Id);
+                Tarefa? tarefaExistente = await _tarefaService.BuscarTarefaPorIdAsync(tarefa.Id);
 
                 int usuarioLogadoId = HttpContext.Session.GetInt32("UserId").Value;
+
+                if (tarefaExistente is null)
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+
                 if (tarefaExistente.UsuarioId != usuarioLogadoId)
                 {
                     return RedirectToAction(nameof(Index));
@@ -165,10 +160,6 @@ namespace GerenciadorDeTarefas.Controllers
 
                 await _tarefaService.AtualizarDadosDaTarefaAsync(tarefaExistente);
                 return RedirectToAction(nameof(Index));
-            }
-            catch (InvalidOperationException ex)
-            {
-                ModelState.AddModelError(string.Empty, ex.Message);
             }
             catch (Exception ex)
             {
@@ -192,11 +183,11 @@ namespace GerenciadorDeTarefas.Controllers
         {
             try
             {
-                if (Id is null) 
+                Tarefa? tarefa = await _tarefaService.BuscarTarefaPorIdAsync(Id.Value);
+                if (tarefa is null)
                 {
                     return RedirectToAction(nameof(Index));
                 }
-                Tarefa tarefa = await _tarefaService.BuscarTarefaPorIdAsync(Id.Value);
 
                 if (tarefa.UsuarioId != HttpContext.Session.GetInt32("UserId").Value)
                 {
@@ -205,14 +196,11 @@ namespace GerenciadorDeTarefas.Controllers
 
                 return View(tarefa);
             }
-            catch (InvalidOperationException ex)
+            catch (Exception)
             {
                 return RedirectToAction(nameof(Index));
             }
-            catch (ArgumentException ex)
-            {
-                return RedirectToAction(nameof(Index));
-            }
+
         }
 
 
@@ -224,11 +212,12 @@ namespace GerenciadorDeTarefas.Controllers
         {
             try
             {
-                if (Id is null) 
+                Tarefa? tarefa = await _tarefaService.BuscarTarefaPorIdAsync(Id.Value);
+
+                if (tarefa is null)
                 {
                     return RedirectToAction(nameof(Index));
                 }
-                Tarefa tarefa = await _tarefaService.BuscarTarefaPorIdAsync(Id.Value);
 
                 if (tarefa.UsuarioId != HttpContext.Session.GetInt32("UserId").Value)
                 {
@@ -238,13 +227,9 @@ namespace GerenciadorDeTarefas.Controllers
                 await _tarefaService.RemoverTarefaAsync(tarefa);
                 return RedirectToAction(nameof(Index));
             }
-            catch (InvalidOperationException ex)
+            catch (Exception ex)
             {
                 TempData["Error"] = ex.Message;
-                return RedirectToAction(nameof(Index));
-            }
-            catch (ArgumentException ex)
-            {
                 return RedirectToAction(nameof(Index));
             }
         }
