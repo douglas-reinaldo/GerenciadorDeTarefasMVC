@@ -26,37 +26,30 @@ namespace GerenciadorDeTarefas.Services
         {
             if (userId is null)
             {
-                _logger.LogWarning("ID do usuário nulo na busca de tarefas por status");
-                throw new ArgumentNullException("ID do usuário não pode ser nulo.", nameof(userId));
+                _logger.LogWarning("ID do usuário nulo na busca de tarefas");
+                throw new ArgumentNullException(nameof(userId));
             }
 
-            if (userId <= 0) 
+            if (userId <= 0)
             {
                 _logger.LogWarning("ID do usuário inválido: {UserId}", userId);
                 throw new ArgumentOutOfRangeException(nameof(userId), "O ID do usuário deve ser maior que zero.");
-
             }
 
             try
             {
                 _logger.LogInformation("Buscando tarefas do usuário {UserId}", userId);
-                return await _tarefaRepository.ObterTarefasPorUserIdAsync(userId.Value);
+                var tarefas = await _tarefaRepository.ObterTarefasPorUserIdAsync(userId.Value);
 
-            }
-            catch (InvalidOperationException ex)
-            {
-                _logger.LogError(ex, "Erro ao buscar tarefas do usuário {UserId}", userId);
-                throw;
-            }
-            catch (TimeoutException ex)
-            {
-                _logger.LogError(ex, "Timeout ao buscar tarefas do usuário {UserId}", userId);
-                throw new InvalidOperationException("Tempo de espera esgotado ao buscar tarefas.", ex);
+                _logger.LogInformation("Encontradas {Count} tarefas para usuário {UserId}",
+                    tarefas.Count, userId);
+
+                return tarefas;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erro inesperado ao buscar tarefas do usuário {UserId}", userId);
-                throw new InvalidOperationException("Erro inesperado ao buscar tarefas.", ex);
+                _logger.LogError(ex, "Erro ao buscar tarefas do usuário {UserId}", userId);
+                throw; 
             }
         }
 
@@ -76,17 +69,11 @@ namespace GerenciadorDeTarefas.Services
 
                 _logger.LogInformation("Tarefa ID {TarefaId} criada com sucesso", tarefa.Id);
             }
-            catch (DbUpdateException ex)
-            {
-                _logger.LogError(ex, "Erro ao salvar tarefa '{Titulo}' no banco de dados para usuário {UserId}",
-                    tarefa.Titulo, userId);
-                throw new InvalidOperationException("Erro ao salvar tarefa no banco de dados.", ex);
-            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro inesperado ao adicionar tarefa '{Titulo}' para usuário {UserId}",
                     tarefa.Titulo, userId);
-                throw new InvalidOperationException("Erro inesperado ao adicionar tarefa.", ex);
+                throw;
             }
         }
 
@@ -106,23 +93,19 @@ namespace GerenciadorDeTarefas.Services
                 throw new ArgumentOutOfRangeException(nameof(id), "O ID da tarefa deve ser maior que zero.");
 
             }
-            try 
+            try
             {
-                Tarefa tarefa =  await _tarefaRepository.ObterTarefaPorIdAsync(id.Value);
-                if (tarefa == null) 
+                Tarefa tarefa = await _tarefaRepository.ObterTarefaPorIdAsync(id.Value);
+                if (tarefa == null)
                 {
                     _logger.LogInformation("Tarefa ID {TarefaId} não encontrada.", id);
                     return null;
                 }
                 return tarefa;
             }
-            catch (TimeoutException ex)
-            {
-                throw new InvalidOperationException("Tempo de espera esgotado ao buscar a tarefa.", ex);
-            }
             catch (Exception ex)
             {
-                throw new InvalidOperationException("Erro inesperado ao buscar a tarefa.", ex);
+                throw;
             }
         }
 
@@ -144,20 +127,10 @@ namespace GerenciadorDeTarefas.Services
 
                 _logger.LogInformation("Tarefa ID {TarefaId} atualizada com sucesso", tarefa.Id);
             }
-            catch (DbUpdateConcurrencyException ex)
-            {
-                _logger.LogWarning(ex, "Conflito de concorrência ao atualizar tarefa ID {TarefaId}", tarefa.Id);
-                throw new InvalidOperationException("A tarefa foi modificada por outro usuário.", ex);
-            }
-            catch (DbUpdateException ex)
-            {
-                _logger.LogError(ex, "Erro ao atualizar tarefa ID {TarefaId} no banco de dados", tarefa.Id);
-                throw new InvalidOperationException("Erro ao atualizar tarefa no banco de dados.", ex);
-            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro inesperado ao atualizar tarefa ID {TarefaId}", tarefa.Id);
-                throw new InvalidOperationException("Erro inesperado ao atualizar tarefa.", ex);
+                throw;
             }
         }
 
@@ -180,15 +153,10 @@ namespace GerenciadorDeTarefas.Services
 
                 _logger.LogInformation("Tarefa ID {TarefaId} deletada com sucesso", tarefa.Id);
             }
-            catch (DbUpdateException ex)
-            {
-                _logger.LogError(ex, "Erro ao deletar tarefa ID {TarefaId} do banco de dados", tarefa.Id);
-                throw new InvalidOperationException("Erro ao deletar tarefa do banco de dados.", ex);
-            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro inesperado ao deletar tarefa ID {TarefaId}", tarefa.Id);
-                throw new InvalidOperationException("Erro inesperado ao deletar tarefa.", ex);
+                throw;
             }
         }
 
@@ -213,17 +181,10 @@ namespace GerenciadorDeTarefas.Services
                 _logger.LogInformation("Buscando tarefas do usuário pelo status");
                 return await _tarefaRepository.BuscarTarefasPorStatusAsync(status.Value, id.Value);
             }
-
-            catch (TimeoutException ex) 
-            {
-                _logger.LogError(ex, "Timeout ao buscar tarefas por status para o usuário ID {UserId}", id);
-                throw new InvalidOperationException("Tempo de espera esgotado ao buscar tarefas por status.", ex);
-            }
-            
             catch (Exception ex) 
             {
                 _logger.LogError(ex, "Erro inesperado ao buscar tarefas por status para o usuário ID {UserId}", id);
-                throw new InvalidOperationException("Erro inesperado ao buscar tarefas por status.", ex);
+                throw;
             }
         }
 
@@ -246,15 +207,10 @@ namespace GerenciadorDeTarefas.Services
                 _logger.LogInformation("Buscando tarefas do usuário pela prioridade");
                 return await _tarefaRepository.BuscarTarefasPorPrioridadeAsync(prioridade.Value, id.Value);
             }
-            catch (TimeoutException ex)
-            {
-                _logger.LogError(ex, "Timeout ao buscar tarefas por status para o usuário ID {UserId}", id);
-                throw new InvalidOperationException("Tempo de espera esgotado ao buscar tarefas por status.", ex);
-            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro inesperado ao buscar tarefas por prioridade para o usuário ID {UserId}", id);
-                throw new InvalidOperationException("Erro inesperado ao buscar tarefas por prioridade.", ex);
+                throw;
             }
         }
 

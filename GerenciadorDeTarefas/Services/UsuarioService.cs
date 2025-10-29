@@ -34,15 +34,10 @@ namespace GerenciadorDeTarefas.Services
 
                 _logger.LogInformation("Usuário ID {UserId} criado com sucesso", usuario.Id);
             }
-            catch (DbUpdateException ex)
-            {
-                _logger.LogError(ex, "Erro ao salvar usuário com email {Email}", usuario.Email);
-                throw new InvalidOperationException("Erro ao salvar usuário. Verifique se o email já está cadastrado.", ex);
-            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro inesperado ao adicionar usuário {Email}", usuario.Email);
-                throw new InvalidOperationException("Erro inesperado ao adicionar usuário.", ex);
+                throw;
             }
         }
 
@@ -71,14 +66,9 @@ namespace GerenciadorDeTarefas.Services
                 _logger.LogWarning("Tentativa de login com senha incorreta para {Email}", email);
                 return null;
             }
-            catch (InvalidOperationException) 
+            catch (Exception)
             {
                 throw;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro ao autenticar usuário {Email}", email);
-                return null;
             }
         }
 
@@ -106,15 +96,10 @@ namespace GerenciadorDeTarefas.Services
                 _logger.LogInformation("Usuário ID {UserId} encontrado: {Email}", id, usuario.Email);
                 return usuario;
             }
-            catch (DbUpdateException e) 
-            {
-                _logger.LogError(e, "Não foi possivel obter o usuário pelo {Id}", id);
-                throw new InvalidOperationException("Erro ao buscar usuário pelo ID.", e);
-            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro inesperado ao buscar usuário ID {UserId}", id);
-                throw new InvalidOperationException("Erro inesperado ao buscar usuário.", ex);
+                throw;
             }
         }
 
@@ -141,11 +126,6 @@ namespace GerenciadorDeTarefas.Services
 
                 _logger.LogInformation("Usuário encontrado: ID {UserId} - {Email}", usuario.Id, email);
                 return usuario;
-            }
-            catch (DbUpdateException e) 
-            {
-                _logger.LogError(e, "Não foi possivel obter o usuário pelo {Email}", email);
-                throw new InvalidOperationException("Erro ao buscar usuário pelo email.", e);
             }
             catch (Exception ex)
             {

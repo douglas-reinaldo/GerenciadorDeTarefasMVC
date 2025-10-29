@@ -4,27 +4,21 @@ using GerenciadorDeTarefas.Repositories.Interfaces;
 using GerenciadorDeTarefas.Services;
 using Microsoft.Extensions.Logging;
 using Moq;
-using NuGet.Frameworks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography.Pkcs;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GerenciadorDeTarefas.Tests.Unit.Services
 {
-
     public class TarefaServiceTests
     {
         private readonly Mock<ITarefaRepository> _tarefaRepositoryMock;
         private readonly TarefaService _tarefaService;
+
         public TarefaServiceTests()
         {
             _tarefaRepositoryMock = new Mock<ITarefaRepository>();
             _tarefaService = new TarefaService(_tarefaRepositoryMock.Object, Mock.Of<ILogger<TarefaService>>());
         }
 
+        #region BuscarTarefasPorStatus
 
         [Theory]
         [InlineData(Status.PENDENTE)]
@@ -42,44 +36,31 @@ namespace GerenciadorDeTarefas.Tests.Unit.Services
                 new Tarefa { Id = 3, Titulo = "T3", Status = Status.CONCLUIDA, UsuarioId = userId },
             };
 
-
-
-            // Setup: Configurar o mock para retornar tarefas pelo status
             _tarefaRepositoryMock
                 .Setup(r => r.BuscarTarefasPorStatusAsync(status, userId))
                 .ReturnsAsync(tarefasSimulacao.Where(t => t.Status == status));
 
-
-
-            // ACT (Ação)
+            // Act
             var resultado = await _tarefaService.BuscarTarefasPorStatusAsync(status, userId);
 
             // Assert
             Assert.Single(resultado);
-
             _tarefaRepositoryMock.Verify(
                 r => r.BuscarTarefasPorStatusAsync(status, userId),
                 Times.Once
             );
         }
 
-
         [Fact]
         public async Task BuscarTarefasPorStatus_DeveRetornarListaVazia_QuandoNenhumaTarefaEncontrada()
         {
             // Arrange
             int userId = 1;
+            var tarefasSimulacao = new List<Tarefa>();
 
-            // Dados para simulação
-            var tarefasSimulacao = new List<Tarefa>
-            {
-            };
-
-            // Setup: Configurar o mock para retornar uma lista vazia
             _tarefaRepositoryMock
                 .Setup(s => s.BuscarTarefasPorStatusAsync(Status.PENDENTE, userId))
                 .ReturnsAsync(tarefasSimulacao.Where(s => s.Status == Status.PENDENTE));
-
 
             // Act
             var resultado = await _tarefaService.BuscarTarefasPorStatusAsync(Status.PENDENTE, userId);
@@ -88,55 +69,56 @@ namespace GerenciadorDeTarefas.Tests.Unit.Services
             Assert.Empty(resultado);
         }
 
-
         [Fact]
-        public async Task BuscarTarefasPorStatus_DeveLancarExcecao_QuandoRepositoryLancarExcecao()
+        public async Task BuscarTarefasPorStatus_DeveLancarTimeoutException_QuandoRepositoryLancarExcecao()
         {
             // Arrange
-
             int userId = 1;
 
-
-            // Setup: Configurar o mock para lançar uma exceção
             _tarefaRepositoryMock
                 .Setup(r => r.BuscarTarefasPorStatusAsync(Status.PENDENTE, userId))
                 .ThrowsAsync(new TimeoutException());
 
+            // Act & Assert
+            await Assert.ThrowsAsync<TimeoutException>(() =>
+                _tarefaService.BuscarTarefasPorStatusAsync(Status.PENDENTE, userId));
 
-            // Act e Assert
-            await Assert.ThrowsAsync<InvalidOperationException>(() => _tarefaService.BuscarTarefasPorStatusAsync(Status.PENDENTE, userId));
             _tarefaRepositoryMock.Verify(
                 r => r.BuscarTarefasPorStatusAsync(Status.PENDENTE, userId),
                 Times.Once
             );
         }
 
-
         [Fact]
-        public async Task BuscarTarefasPorStatus_DeveLancarExcecao_QuandoIdUsuarioForNulo()
+        public async Task BuscarTarefasPorStatus_DeveLancarArgumentNullException_QuandoIdUsuarioForNulo()
         {
             // Arrange
             int? userId = null;
 
-
-            // Act e Assert
-            await Assert.ThrowsAsync<ArgumentNullException>(() => _tarefaService.BuscarTarefasPorStatusAsync(Status.CONCLUIDA, userId));
+            // Act & Assert
+            await Assert.ThrowsAsync<ArgumentNullException>(() =>
+                _tarefaService.BuscarTarefasPorStatusAsync(Status.CONCLUIDA, userId));
         }
 
-
         [Fact]
-        public async Task BuscarTarefasPorStatus_DeveLancarExcecao_QuandoStatusForNullo()
+        public async Task BuscarTarefasPorStatus_DeveLancarArgumentNullException_QuandoStatusForNulo()
         {
             // Arrange
             Status? status = null;
             int userId = 1;
 
-            // Act e Assert
-            await Assert.ThrowsAsync<ArgumentNullException>(() => _tarefaService.BuscarTarefasPorStatusAsync(status, userId));
+            // Act & Assert
+            await Assert.ThrowsAsync<ArgumentNullException>(() =>
+                _tarefaService.BuscarTarefasPorStatusAsync(status, userId));
         }
 
+        #endregion
 
 
+
+
+
+        #region BuscarTarefasPorPrioridade
 
         [Theory]
         [InlineData(Prioridade.Baixa)]
@@ -165,69 +147,71 @@ namespace GerenciadorDeTarefas.Tests.Unit.Services
             _tarefaRepositoryMock.Verify(
                 s => s.BuscarTarefasPorPrioridadeAsync(prioridade, userId),
                 Times.Once
-                );
+            );
         }
 
-
         [Fact]
-        public async Task BuscarTarefasPorPrioridade_DeveRetornarExcessao_QuandoIdForNulo()
+        public async Task BuscarTarefasPorPrioridade_DeveRetornarArgumentNullException_QuandoIdForNulo()
         {
             // Arrange
             int? userId = null;
 
-            // Act e Assert
-            var excecao = await Assert.ThrowsAsync<ArgumentNullException>(() => _tarefaService.BuscarTarefasPorPrioridadeAsync(Prioridade.Baixa, userId));
+            // Act & Assert
+            var excecao = await Assert.ThrowsAsync<ArgumentNullException>(() =>
+                _tarefaService.BuscarTarefasPorPrioridadeAsync(Prioridade.Baixa, userId));
+
             Assert.Equal("id", excecao.ParamName);
 
             _tarefaRepositoryMock.Verify(
                 s => s.BuscarTarefasPorPrioridadeAsync(It.IsAny<Prioridade>(), It.IsAny<int>()),
                 Times.Never
-                );
+            );
         }
 
         [Fact]
-        public async Task BuscarTarefasPorPrioridade_DeveRetornarExcessao_QuandoPrioridadeForNula()
+        public async Task BuscarTarefasPorPrioridade_DeveRetornarArgumentNullException_QuandoPrioridadeForNula()
         {
             // Arrange
             Prioridade? prioridade = null;
             int userId = 1;
 
-            // Act e Assert
-            var excecao = await Assert.ThrowsAsync<ArgumentNullException>(() => _tarefaService.BuscarTarefasPorPrioridadeAsync(prioridade, userId));
+            // Act & Assert
+            var excecao = await Assert.ThrowsAsync<ArgumentNullException>(() =>
+                _tarefaService.BuscarTarefasPorPrioridadeAsync(prioridade, userId));
+
             Assert.Equal("prioridade", excecao.ParamName);
 
             _tarefaRepositoryMock.Verify(
                 s => s.BuscarTarefasPorPrioridadeAsync(It.IsAny<Prioridade>(), It.IsAny<int>()),
                 Times.Never
-                );
+            );
         }
 
         [Fact]
-        public async Task BuscarTarefasPorPrioridade_DeveRetornarExcessao_QuandoRepositoryLancarExcecao()
+        public async Task BuscarTarefasPorPrioridade_DeveLancarTimeoutException_QuandoRepositoryLancarExcecao()
         {
             // Arrange
             int userId = 1;
             _tarefaRepositoryMock
-                .Setup(s => s.BuscarTarefasPorPrioridadeAsync(It.IsAny<Prioridade>(), userId))
+                .Setup(s => s.BuscarTarefasPorPrioridadeAsync(Prioridade.Alta, userId))
                 .ThrowsAsync(new TimeoutException());
 
-            // Act e Assert
-            await Assert.ThrowsAsync<InvalidOperationException>(() => _tarefaService.BuscarTarefasPorPrioridadeAsync(It.IsAny<Prioridade>(), userId));
+            // Act & Assert
+            await Assert.ThrowsAsync<TimeoutException>(() =>
+                _tarefaService.BuscarTarefasPorPrioridadeAsync(Prioridade.Alta, userId));
 
             _tarefaRepositoryMock.Verify(
                 s => s.BuscarTarefasPorPrioridadeAsync(Prioridade.Alta, userId),
                 Times.Once
-                );
+            );
         }
-
 
         [Fact]
         public async Task BuscarTarefasPorPrioridade_DeveRetornarListaVazia_QuandoNenhumaTarefaEncontrada()
         {
             // Arrange
             int userId = 1;
-            var tarefasSimulacao = new List<Tarefa>
-            { };
+            var tarefasSimulacao = new List<Tarefa>();
 
             _tarefaRepositoryMock
                 .Setup(s => s.BuscarTarefasPorPrioridadeAsync(Prioridade.Media, userId))
@@ -240,7 +224,9 @@ namespace GerenciadorDeTarefas.Tests.Unit.Services
             Assert.Empty(resultado);
         }
 
+        #endregion
 
+        #region ListarTarefasDoUsuario
 
         [Theory]
         [InlineData(1)]
@@ -259,11 +245,9 @@ namespace GerenciadorDeTarefas.Tests.Unit.Services
                 new Tarefa { Id = 6, Titulo = "Tarefa 6", UsuarioId = 3 },
             };
 
-            // Setup: Configurar o mock para retornar tarefas pelo userId
             _tarefaRepositoryMock
                 .Setup(s => s.ObterTarefasPorUserIdAsync(userId))
                 .ReturnsAsync(tarefasSimulacao.Where(s => s.UsuarioId.Equals(userId)).ToList());
-
 
             // Act
             var resultado = await _tarefaService.ListarTarefasDoUsuarioAsync(userId);
@@ -273,19 +257,16 @@ namespace GerenciadorDeTarefas.Tests.Unit.Services
             _tarefaRepositoryMock.Verify(
                 s => s.ObterTarefasPorUserIdAsync(userId),
                 Times.Once
-                );
+            );
         }
-
 
         [Fact]
         public async Task ListarTarefasPorUserId_DeveRetornarListaVazia_QuandoNaoHouverTarefas()
         {
             // Arrange
             int userId = 1;
+            var tarefasSimulacao = new List<Tarefa>();
 
-            var tarefasSimulacao = new List<Tarefa> { };
-
-            // Configura o mock para retornar a mesma lista
             _tarefaRepositoryMock
                 .Setup(s => s.ObterTarefasPorUserIdAsync(userId))
                 .ReturnsAsync(tarefasSimulacao.Where(s => s.UsuarioId.Equals(userId)).ToList());
@@ -297,72 +278,70 @@ namespace GerenciadorDeTarefas.Tests.Unit.Services
             Assert.Empty(resultado);
         }
 
-
-
         [Fact]
-        public async Task ListarTarefasPorUserId_DeveLancarExcecao_QuandoUserIdForNulo()
+        public async Task ListarTarefasPorUserId_DeveLancarArgumentNullException_QuandoUserIdForNulo()
         {
             // Arrange
             int? userId = null;
 
-            // Act e Assert
-            await Assert.ThrowsAsync<ArgumentNullException>(() => _tarefaService.ListarTarefasDoUsuarioAsync(userId));
+            // Act & Assert
+            await Assert.ThrowsAsync<ArgumentNullException>(() =>
+                _tarefaService.ListarTarefasDoUsuarioAsync(userId));
         }
 
-
         [Fact]
-        public async Task ListarTarefasPorUserId_DeveLancarExcecao_QuandoUserIdForInvalido()
+        public async Task ListarTarefasPorUserId_DeveLancarArgumentOutOfRangeException_QuandoUserIdForInvalido()
         {
             // Arrange
             int userId = -1;
 
-            // Act e Assert
-            await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => _tarefaService.ListarTarefasDoUsuarioAsync(userId));
+            // Act & Assert
+            await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() =>
+                _tarefaService.ListarTarefasDoUsuarioAsync(userId));
         }
 
-
-
         [Fact]
-        public async Task ListarTarefasPorUserId_DeveLancarExcecao_QuandoRepositoryLancarExcecao()
+        public async Task ListarTarefasPorUserId_DeveLancarTimeoutException_QuandoRepositoryLancarExcecao()
         {
             // Arrange
             int userId = 1;
 
-            // Configura o mock para lançar uma exceção
             _tarefaRepositoryMock
                 .Setup(s => s.ObterTarefasPorUserIdAsync(userId))
                 .ThrowsAsync(new TimeoutException());
 
-            // Act e Assert
-            await Assert.ThrowsAsync<InvalidOperationException>(() => _tarefaService.ListarTarefasDoUsuarioAsync(userId));
+            // Act & Assert
+            await Assert.ThrowsAsync<TimeoutException>(() =>
+                _tarefaService.ListarTarefasDoUsuarioAsync(userId));
         }
 
-
-
         [Fact]
-        public async Task ListarTarefasPorUserId_DeveLancarExcecao_QuandoLancarExcecaoGenerica()
+        public async Task ListarTarefasPorUserId_DeveLancarException_QuandoLancarExcecaoGenerica()
         {
             // Arrange
             int userId = 1;
 
-
-            // Setup: Configurar o mock para lançar uma exceção genérica
             _tarefaRepositoryMock
                 .Setup(s => s.ObterTarefasPorUserIdAsync(userId))
-                .ThrowsAsync(new Exception());
+                .ThrowsAsync(new Exception("Erro genérico"));
 
-
-            // Act e Assert
-            await Assert.ThrowsAsync<InvalidOperationException>(() => _tarefaService.ListarTarefasDoUsuarioAsync(userId));
+            // Act & Assert
+            await Assert.ThrowsAsync<Exception>(() =>
+                _tarefaService.ListarTarefasDoUsuarioAsync(userId));
         }
 
+        #endregion
 
+
+
+
+        #region BuscarTarefaPorId
 
         [Theory]
         [InlineData(1)]
         [InlineData(2)]
         [InlineData(3)]
-        public async Task RetornarTarefaPorId_DeveRetornarTarefa_QuandoTarefaExistir(int id)
+        public async Task BuscarTarefaPorId_DeveRetornarTarefa_QuandoTarefaExistir(int id)
         {
             // Arrange
             var tarefasSimulacao = new List<Tarefa>
@@ -380,17 +359,15 @@ namespace GerenciadorDeTarefas.Tests.Unit.Services
             var resultado = await _tarefaService.BuscarTarefaPorIdAsync(id);
 
             // Assert
-            Assert.Equal(resultado.Id, id);
+            Assert.NotNull(resultado);
+            Assert.Equal(id, resultado.Id);
         }
 
-
-
         [Fact]
-        public async Task RetornarTarefaPorId_DeveRetornarNulo_QuandoTarefaNaoExistir()
+        public async Task BuscarTarefaPorId_DeveRetornarNull_QuandoTarefaNaoExistir()
         {
             // Arrange
             int id = 50;
-
             var tarefasSimulacao = new List<Tarefa>
             {
                 new Tarefa { Id = 1, Titulo = "Tarefa 1" },
@@ -407,34 +384,32 @@ namespace GerenciadorDeTarefas.Tests.Unit.Services
 
             // Assert
             Assert.Null(tarefa);
-
         }
 
-
         [Fact]
-        public async Task RetornarTarefaPorId_DeveLancarExcecao_QuandoIdForInvalido()
+        public async Task BuscarTarefaPorId_DeveLancarArgumentOutOfRangeException_QuandoIdForInvalido()
         {
             // Arrange
             int id = -1;
 
-            // Act e Assert
-            await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => _tarefaService.BuscarTarefaPorIdAsync(id));
+            // Act & Assert
+            await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() =>
+                _tarefaService.BuscarTarefaPorIdAsync(id));
         }
 
-
         [Fact]
-        public async Task RetornarTarefaPorId_DeveLancarExcecao_QuandoIdForNulo()
+        public async Task BuscarTarefaPorId_DeveLancarArgumentNullException_QuandoIdForNulo()
         {
             // Arrange
             int? id = null;
 
-            //Act e Assert
-            await Assert.ThrowsAsync<ArgumentNullException>(() => _tarefaService.BuscarTarefaPorIdAsync(id));
+            // Act & Assert
+            await Assert.ThrowsAsync<ArgumentNullException>(() =>
+                _tarefaService.BuscarTarefaPorIdAsync(id));
         }
 
-
         [Fact]
-        public async Task RetornarTarefaPorId_DeveLancarExcecao_QuandoRepositoryLancarExcecao()
+        public async Task BuscarTarefaPorId_DeveLancarTimeoutException_QuandoRepositoryLancarExcecao()
         {
             // Arrange
             int id = 1;
@@ -443,25 +418,26 @@ namespace GerenciadorDeTarefas.Tests.Unit.Services
                 .Setup(s => s.ObterTarefaPorIdAsync(id))
                 .ThrowsAsync(new TimeoutException());
 
-
-            // Act e Assert
-            await Assert.ThrowsAsync<InvalidOperationException>(() => _tarefaService.BuscarTarefaPorIdAsync(id));
+            // Act & Assert
+            await Assert.ThrowsAsync<TimeoutException>(() =>
+                _tarefaService.BuscarTarefaPorIdAsync(id));
         }
 
-
-
         [Fact]
-        public async Task RetornarTarefaPorId_DeveLancarExcecao_QuandoRepositoryLancarExcecaoGenerica()
+        public async Task BuscarTarefaPorId_DeveLancarException_QuandoRepositoryLancarExcecaoGenerica()
         {
             // Arrange
             int id = 1;
 
             _tarefaRepositoryMock
                 .Setup(s => s.ObterTarefaPorIdAsync(id))
-                .ThrowsAsync(new Exception());
+                .ThrowsAsync(new Exception("Erro genérico"));
 
-            // Act e Assert
-            await Assert.ThrowsAsync<InvalidOperationException>(() => _tarefaService.BuscarTarefaPorIdAsync(id));
+            // Act & Assert
+            await Assert.ThrowsAsync<Exception>(() =>
+                _tarefaService.BuscarTarefaPorIdAsync(id));
         }
+
+        #endregion
     }
 }
