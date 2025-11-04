@@ -2940,11 +2940,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\dougl\\Downloads\\Nova pasta\\GerenciadorDeTarefas\\GerenciadorDeTarefas\\GerenciadorDeTarefas.csproj",
+      "projectUniqueName": "C:\\Users\\dougl\\Downloads\\Projetos_.NET\\GerenciadorDeTarefas\\GerenciadorDeTarefas\\GerenciadorDeTarefas.csproj",
       "projectName": "GerenciadorDeTarefas",
-      "projectPath": "C:\\Users\\dougl\\Downloads\\Nova pasta\\GerenciadorDeTarefas\\GerenciadorDeTarefas\\GerenciadorDeTarefas.csproj",
+      "projectPath": "C:\\Users\\dougl\\Downloads\\Projetos_.NET\\GerenciadorDeTarefas\\GerenciadorDeTarefas\\GerenciadorDeTarefas.csproj",
       "packagesPath": "C:\\Users\\dougl\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\dougl\\Downloads\\Nova pasta\\GerenciadorDeTarefas\\GerenciadorDeTarefas\\obj\\",
+      "outputPath": "C:\\Users\\dougl\\Downloads\\Projetos_.NET\\GerenciadorDeTarefas\\GerenciadorDeTarefas\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

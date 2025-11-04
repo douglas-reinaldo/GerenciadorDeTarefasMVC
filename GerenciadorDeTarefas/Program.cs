@@ -4,7 +4,7 @@ using GerenciadorDeTarefas.Repositories;
 using GerenciadorDeTarefas.Repositories.Interfaces;
 using GerenciadorDeTarefas.Services;
 using Microsoft.EntityFrameworkCore;
-
+ 
 namespace GerenciadorDeTarefas
 {
     public class Program

@@ -4,6 +4,7 @@ using GerenciadorDeTarefas.Repositories.Interfaces;
 using GerenciadorDeTarefas.Services;
 using Microsoft.Extensions.Logging;
 using Moq;
+using Xunit.Sdk;
 
 namespace GerenciadorDeTarefas.Tests.Unit.Services
 {
@@ -112,8 +113,30 @@ namespace GerenciadorDeTarefas.Tests.Unit.Services
                 _tarefaService.BuscarTarefasPorStatusAsync(status, userId));
         }
 
-        #endregion
 
+        [Fact]
+        public async Task BuscarTarefasPorStatus_DeveLancarArgumentOutOfRangeException_QuandoUserIdForZero()
+        {
+            // Arrange
+            int userId = 0;
+
+            // Act & Assert
+            await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() =>
+                _tarefaService.BuscarTarefasPorStatusAsync(Status.PENDENTE, userId));
+        }
+
+        [Fact]
+        public async Task BuscarTarefasPorStatus_DeveLancarArgumentOutOfRangeException_QuandoUserIdForNegativo()
+        {
+            // Arrange
+            int userId = -5;
+
+            // Act & Assert
+            await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() =>
+                _tarefaService.BuscarTarefasPorStatusAsync(Status.PENDENTE, userId));
+        }
+
+        #endregion
 
 
 
@@ -224,7 +247,33 @@ namespace GerenciadorDeTarefas.Tests.Unit.Services
             Assert.Empty(resultado);
         }
 
+
+        [Fact]
+        public async Task BuscarTarefasPorPrioridade_DeveLancarArgumentOutOfRangeException_QuandoUserIdForZero()
+        {
+            // Arrange
+            int userId = 0;
+
+            // Act & Assert
+            await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() =>
+                _tarefaService.BuscarTarefasPorPrioridadeAsync(Prioridade.Alta, userId));
+        }
+
+        [Fact]
+        public async Task BuscarTarefasPorPrioridade_DeveLancarArgumentOutOfRangeException_QuandoUserIdForNegativo()
+        {
+            // Arrange
+            int userId = -10;
+
+            // Act & Assert
+            await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() =>
+                _tarefaService.BuscarTarefasPorPrioridadeAsync(Prioridade.Alta, userId));
+        }
+
         #endregion
+
+
+
 
         #region ListarTarefasDoUsuario
 
@@ -260,6 +309,9 @@ namespace GerenciadorDeTarefas.Tests.Unit.Services
             );
         }
 
+
+
+
         [Fact]
         public async Task ListarTarefasPorUserId_DeveRetornarListaVazia_QuandoNaoHouverTarefas()
         {
@@ -278,6 +330,8 @@ namespace GerenciadorDeTarefas.Tests.Unit.Services
             Assert.Empty(resultado);
         }
 
+
+
         [Fact]
         public async Task ListarTarefasPorUserId_DeveLancarArgumentNullException_QuandoUserIdForNulo()
         {
@@ -289,16 +343,18 @@ namespace GerenciadorDeTarefas.Tests.Unit.Services
                 _tarefaService.ListarTarefasDoUsuarioAsync(userId));
         }
 
-        [Fact]
-        public async Task ListarTarefasPorUserId_DeveLancarArgumentOutOfRangeException_QuandoUserIdForInvalido()
+        [Theory]
+        [InlineData(0)]
+        [InlineData(-5)]
+        public async Task ListarTarefasPorUserId_DeveLancarArgumentOutOfRangeException_QuandoUserIdForInvalido(int userId)
         {
-            // Arrange
-            int userId = -1;
 
             // Act & Assert
             await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() =>
                 _tarefaService.ListarTarefasDoUsuarioAsync(userId));
         }
+
+
 
         [Fact]
         public async Task ListarTarefasPorUserId_DeveLancarTimeoutException_QuandoRepositoryLancarExcecao()
@@ -314,6 +370,8 @@ namespace GerenciadorDeTarefas.Tests.Unit.Services
             await Assert.ThrowsAsync<TimeoutException>(() =>
                 _tarefaService.ListarTarefasDoUsuarioAsync(userId));
         }
+
+
 
         [Fact]
         public async Task ListarTarefasPorUserId_DeveLancarException_QuandoLancarExcecaoGenerica()
@@ -386,11 +444,13 @@ namespace GerenciadorDeTarefas.Tests.Unit.Services
             Assert.Null(tarefa);
         }
 
-        [Fact]
-        public async Task BuscarTarefaPorId_DeveLancarArgumentOutOfRangeException_QuandoIdForInvalido()
+
+
+        [Theory]
+        [InlineData(0)]
+        [InlineData(-1)]
+        public async Task BuscarTarefaPorId_DeveLancarArgumentOutOfRangeException_QuandoIdForInvalido(int id)
         {
-            // Arrange
-            int id = -1;
 
             // Act & Assert
             await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() =>
@@ -438,6 +498,144 @@ namespace GerenciadorDeTarefas.Tests.Unit.Services
                 _tarefaService.BuscarTarefaPorIdAsync(id));
         }
 
+
         #endregion
+
+
+
+        #region CriarTarefa
+
+
+
+
+        [Fact]
+        public async Task CriarTarefa_DeveChamarRepositorio_QuandoTarefaValida() 
+        {
+            // Arrange
+            int userId = 1;
+
+            List<Tarefa> simulacaoTarefas = new List<Tarefa>() 
+            {
+                new Tarefa { Id = 1, Titulo = "Tarefa 1", UsuarioId = userId },
+                new Tarefa { Id = 2, Titulo = "Tarefa 2", UsuarioId = userId }
+            };
+
+            var novaTarefa = new Tarefa
+            {
+                Titulo = "Nova Tarefa",
+                Descricao = "Descrição da nova tarefa",
+                UsuarioId = userId
+            };
+
+
+            _tarefaRepositoryMock
+                .Setup(s => s.AdicionarAsync(novaTarefa))
+                .Callback<Tarefa>(s => simulacaoTarefas.Add(novaTarefa))
+                .Returns(Task.CompletedTask);
+
+
+            _tarefaRepositoryMock
+                .Setup(s => s.SalvarMudancasAsync())
+                .ReturnsAsync(1);
+
+            // Act
+            await _tarefaService.CriarTarefaAsync(novaTarefa, userId);
+
+            // Assert
+            Assert.Contains(novaTarefa, simulacaoTarefas);
+
+            _tarefaRepositoryMock.Verify(
+                s => s.AdicionarAsync(novaTarefa),
+                Times.Once
+            );
+
+            _tarefaRepositoryMock.Verify(
+                s => s.SalvarMudancasAsync(),
+                Times.Once
+            );
+
+        }
+
+
+
+
+        [Fact]
+        public async Task CriarTarefa_DeveLancarArgumentNullException_QuandoTarefaForNula() 
+        {
+            // Arrange
+            int userId = 1;
+            Tarefa? tarefa = null;
+
+            // Act e Assert
+            await Assert.ThrowsAsync<ArgumentNullException>(() => _tarefaService.CriarTarefaAsync(tarefa, userId));
+        }
+
+
+        [Fact]
+        public async Task CriarTarefa_DeveLancarArgumentNullException_QuandoUserIdForNulo() 
+        {
+            // Arrange
+            int? userId = null;
+            var novaTarefa = new Tarefa
+            {
+                Id = 1,
+                Titulo = "Tarefa Teste",
+            };
+
+
+            // Act e Assert
+            await Assert.ThrowsAsync<ArgumentNullException>(() => _tarefaService.CriarTarefaAsync(novaTarefa, userId));
+        }
+
+
+
+
+        [Theory]
+        [InlineData(0)]
+        [InlineData(-1)]
+        public async Task CriarTarefa_DeveLancarArgumentOutOfRangeException_QuandoUserIdForInvalido(int userId) 
+        {
+            //Arrange
+            var novaTarefa = new Tarefa 
+            {
+                Id = 1,
+                Titulo = "Tarefa Teste",
+            };
+
+            // Act e Assert
+            await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => _tarefaService.CriarTarefaAsync(novaTarefa, userId));
+        }
+
+
+
+
+        [Fact]
+        public async Task CriarTarefa_DeveLancarExcecao_QuandoRepositorioLancarExcecao() 
+        {
+            // Arrange
+            int userId = 1;
+            var novaTarefa = new Tarefa 
+            {
+                Id = 1,
+                Titulo = "Tarefa Teste",
+            };
+
+            _tarefaRepositoryMock
+                .Setup(s => s.AdicionarAsync(novaTarefa))
+                .ThrowsAsync(new TimeoutException());
+
+
+            // Act e Assert
+            await Assert.ThrowsAsync<TimeoutException>(() => _tarefaService.CriarTarefaAsync(novaTarefa, userId));
+        }
+
+
+
+
+
+        #endregion
+
+
+
     }
 }

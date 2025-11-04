@@ -55,13 +55,28 @@ namespace GerenciadorDeTarefas.Services
 
 
 
-        public async Task CriarTarefaAsync(Tarefa tarefa, int userId)
+        public async Task CriarTarefaAsync(Tarefa tarefa, int? userId)
         {
+            if (tarefa is null)
+            {
+                _logger.LogWarning("Tentativa de adicionar tarefa nula para usuário {UserId}", userId);
+                throw new ArgumentNullException(nameof(tarefa), "Tarefa não pode ser nula.");
+            }
+            if (userId is null) 
+            {
+                _logger.LogWarning("ID do usuário nulo ao adicionar tarefa");
+                throw new ArgumentNullException(nameof(userId), "O ID do usuário não pode ser nulo.");
+            }
+            if (userId <= 0) 
+            {
+                _logger.LogWarning("ID do usuário inválido");
+                throw new ArgumentOutOfRangeException(nameof(userId), "O ID do usuário deve ser maior que zero.");
+            }
             try
             {
                 _logger.LogInformation("Adicionando tarefa '{Titulo}' para usuário {UserId}", tarefa.Titulo, userId);
 
-                tarefa.UsuarioId = userId;
+                tarefa.UsuarioId = userId.Value;
                 tarefa.DataCriacao = DateTime.UtcNow;
 
                 await _tarefaRepository.AdicionarAsync(tarefa);
@@ -169,6 +184,11 @@ namespace GerenciadorDeTarefas.Services
                 _logger.LogWarning("ID do usuário nulo na busca de tarefas por status");
                 throw new ArgumentNullException(nameof(id), "ID do usuário não pode ser nulo.");
             }
+            if (id <= 0)
+            {
+                _logger.LogWarning("ID do usuário inválido: {UserId}", id);
+                throw new ArgumentOutOfRangeException(nameof(id), "O ID do usuário deve ser maior que zero.");
+            }
 
             if (!status.HasValue) 
             {
@@ -195,6 +215,11 @@ namespace GerenciadorDeTarefas.Services
             {
                 _logger.LogWarning("ID do usuário nulo na busca de tarefas por prioridade");
                 throw new ArgumentNullException(nameof(id), "ID do usuário não pode ser nulo.");
+            }
+            if (id <= 0)
+            {
+                _logger.LogWarning("ID do usuário inválido: {UserId}", id);
+                throw new ArgumentOutOfRangeException(nameof(id), "O ID do usuário deve ser maior que zero.");
             }
 
             if (!prioridade.HasValue) 
